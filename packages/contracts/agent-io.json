@@ -1,0 +1,47 @@
+{
+  "observer_output": {
+    "sessionId": "sess_2026_02_23_001",
+    "startedAt": "2026-02-23T09:00:00.000Z",
+    "events": [
+      {
+        "timestamp": "2026-02-23T09:00:05.000Z",
+        "app": "Google Chrome",
+        "windowTitle": "CRM - Contact Edit",
+        "url": "https://crm.example.com/contacts/123/edit",
+        "actionType": "click",
+        "captureRef": "cap_001"
+      }
+    ]
+  },
+  "summarizer_output": {
+    "day": "2026-02-23",
+    "workCategories": [
+      {
+        "name": "crm_data_entry",
+        "durationMinutes": 84,
+        "frequency": 18
+      }
+    ],
+    "repetitivePatterns": [
+      {
+        "patternId": "pat_crm_sheet_01",
+        "description": "Open row in Sheets and copy values into CRM form",
+        "occurrences": 14
+      }
+    ]
+  },
+  "opportunity_output": {
+    "topCandidates": [
+      {
+        "candidateId": "cand_01",
+        "name": "Sheets row to CRM contact update",
+        "metrics": {
+          "successProbability": 0.9,
+          "riskScore": 0.2,
+          "normalizedTimeSaved": 0.6
+        },
+        "score": 0.83
+      }
+    ]
+  }
+}

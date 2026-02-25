@@ -1,0 +1,88 @@
+:root {
+  font-family: "SF Pro Text", "Segoe UI", sans-serif;
+  color: #111827;
+  background: #f4f7fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.card h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+button {
+  border: 1px solid #c7d4ea;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #f8fbff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #ebf2ff;
+}
+
+.warning-box {
+  margin: 8px 0 12px;
+  border: 1px solid #f4c88b;
+  background: #fff8ec;
+  color: #8a4d08;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.log-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.col {
+  display: grid;
+  gap: 16px;
+}
+
+@media (max-width: 960px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+}
