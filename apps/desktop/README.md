@@ -1,12 +1,21 @@
-# Desktop App (Tauri + React) Skeleton
+# Desktop App (Tauri + React)
 
-This folder holds the macOS desktop UI shell for DeskOps Copilot.
+Local-first desktop capture agent for DeskOps Copilot. Screenshot/OCR processing runs locally and
+only metadata is sent to backend.
 
-## Planned modules
-- `src/ui/ObserveDashboard.tsx`: Observe mode and daily summary cards
-- `src/ui/CandidateList.tsx`: Top 3 automation opportunities
-- `src/ui/RunCenter.tsx`: permission, test run, manual/scheduled execution controls
+## Commands
+- `npm run build`: TypeScript + Vite build
+- `npm run tauri -- dev --no-watch`: run desktop app in development
+- `npm run smoke:backend`: verify backend contract only (`/health`, telemetry `202/409/400`)
+- `npm run smoke:e2e`: auto-start local backend (if needed) then run smoke checks
 
-## Notes
-- Runtime wiring with Tauri commands and Playwright runner is intentionally deferred to the next implementation slice.
-- Core scoring/guard/rollback logic lives in `/packages/core/src`.
+## Runtime Env (Desktop)
+- `DESKOPS_BACKEND_URL`: backend base URL (default `http://localhost:4310`)
+- `DESKOPS_FLUSH_INTERVAL_SECONDS`: periodic queue flush interval during observe loop (default `15`)
+- `DESKOPS_CAPTURE_COOLDOWN_SECONDS`: screenshot cooldown on state change (default `5`)
+
+## Required macOS Permissions
+- Accessibility
+- Screen Recording
+
+Observe start and manual capture are blocked when required permissions are missing.

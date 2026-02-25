@@ -24,11 +24,12 @@ mod pipeline {
     pub mod uploader;
 }
 mod storage {
+    pub mod observations;
     pub mod queue;
     pub mod snapshots;
 }
 
-use commands::observe::{capture_snapshot, start_observe, stop_observe};
+use commands::observe::{capture_snapshot, get_observation_stats, start_observe, stop_observe};
 use commands::permissions::check_permissions;
 use commands::telemetry::flush_telemetry_queue;
 
@@ -39,6 +40,7 @@ fn main() {
             stop_observe,
             check_permissions,
             capture_snapshot,
+            get_observation_stats,
             flush_telemetry_queue
         ])
         .run(tauri::generate_context!())

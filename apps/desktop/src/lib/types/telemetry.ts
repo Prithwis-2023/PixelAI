@@ -32,3 +32,11 @@ export interface FlushResult {
 export interface ObserveSession {
   sessionId: string;
 }
+
+export interface ObservationStats {
+  segmentCount: number;
+  captureCount: number;
+  lastTaskHint: string | null;
+  lastSegmentDurationMs: number | null;
+  lastCaptureAt: string | null;
+}

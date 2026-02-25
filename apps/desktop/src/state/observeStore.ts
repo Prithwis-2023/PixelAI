@@ -1,6 +1,11 @@
 import { create } from 'zustand';
-import type { CaptureSnapshotResult, FlushResult, PermissionState } from '../lib/types/telemetry';
-import { startObserve, stopObserve, captureSnapshot } from '../lib/bridge/observe';
+import type {
+  CaptureSnapshotResult,
+  FlushResult,
+  ObservationStats,
+  PermissionState
+} from '../lib/types/telemetry';
+import { startObserve, stopObserve, captureSnapshot, getObservationStats } from '../lib/bridge/observe';
 import { checkPermissions } from '../lib/bridge/permissions';
 import { flushTelemetryQueue } from '../lib/bridge/telemetry';
 
@@ -8,6 +13,7 @@ interface ObserveState {
   sessionId: string | null;
   permissions: PermissionState | null;
   permissionHint: string | null;
+  observationStats: ObservationStats | null;
   lastCapture: CaptureSnapshotResult | null;
   lastFlush: FlushResult | null;
   logs: string[];
@@ -17,6 +23,7 @@ interface ObserveState {
   onStop: () => Promise<void>;
   onCapture: () => Promise<void>;
   onFlush: () => Promise<void>;
+  pollObservationStats: () => Promise<void>;
 }
 
 function addLog(logs: string[], entry: string): string[] {
@@ -27,6 +34,7 @@ export const useObserveStore = create<ObserveState>((set) => ({
   sessionId: null,
   permissions: null,
   permissionHint: null,
+  observationStats: null,
   lastCapture: null,
   lastFlush: null,
   logs: [],
@@ -114,6 +122,14 @@ export const useObserveStore = create<ObserveState>((set) => ({
       }));
     } catch (error) {
       set((state) => ({ logs: addLog(state.logs, `flush failed: ${String(error)}`), loading: false }));
+    }
+  },
+  pollObservationStats: async () => {
+    try {
+      const observationStats = await getObservationStats();
+      set({ observationStats });
+    } catch {
+      // Ignore polling errors to avoid noisy UI logs when file does not exist yet.
     }
   }
 }));

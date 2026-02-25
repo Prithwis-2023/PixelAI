@@ -7,6 +7,8 @@ use crate::pipeline::normalizer::concise_text;
 pub struct OcrOutput {
     pub summary: String,
     pub success: bool,
+    pub raw_text: Option<String>,
+    pub engine: String,
 }
 
 pub fn summarize_image(path: &Path) -> OcrOutput {
@@ -19,6 +21,8 @@ pub fn summarize_image(path: &Path) -> OcrOutput {
                 summary
             },
             success: true,
+            raw_text: Some(text),
+            engine: "vision".to_string(),
         };
     }
 
@@ -32,6 +36,8 @@ pub fn summarize_image(path: &Path) -> OcrOutput {
         return OcrOutput {
             summary: "ocr_unavailable_local".to_string(),
             success: false,
+            raw_text: None,
+            engine: "unavailable".to_string(),
         };
     }
 
@@ -53,11 +59,15 @@ pub fn summarize_image(path: &Path) -> OcrOutput {
                     summary
                 },
                 success: true,
+                raw_text: Some(text),
+                engine: "tesseract".to_string(),
             }
         }
         _ => OcrOutput {
             summary: "ocr_failed_local".to_string(),
             success: false,
+            raw_text: None,
+            engine: "failed".to_string(),
         },
     }
 }
