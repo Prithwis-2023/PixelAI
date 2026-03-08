@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+/* ─── Micro-interactions ─────────────────────────── */
+
+/* 노란 채움 버튼 (EXECUTE, EXTRACT) */
+.pixel-btn-primary {
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+.pixel-btn-primary:hover  { filter: brightness(1.12); }
+.pixel-btn-primary:active { transform: scale(0.96); filter: brightness(0.9); }
+
+/* 아웃라인 버튼 (RESET) */
+.pixel-btn-outline {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+.pixel-btn-outline:hover  { background: #E2FF3B !important; color: #000 !important; }
+.pixel-btn-outline:active { transform: scale(0.96); }
+
+/* 검색 인풋 포커스 링 */
+.pixel-input:focus {
+  border-color: rgba(255,255,255,0.9) !important;
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(226,255,59,0.2);
+}
+
+/* 프레임 그리드 셀 */
+.pixel-frame {
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+.pixel-frame:hover  { filter: brightness(0.82); }
+.pixel-frame:active { transform: scale(0.97); filter: brightness(0.75); }

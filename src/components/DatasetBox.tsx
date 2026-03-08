@@ -22,7 +22,7 @@ export default function DatasetBox({ onExtract, disabled = false }: DatasetBoxPr
       </div>
 
       {/* EXTRACT 버튼 + 글리치 장식 */}
-      <div className="relative shrink-0" style={{ marginLeft: '16px' }}>
+      <div className="relative shrink-0 pixel-btn-primary" style={{ marginLeft: '16px' }}>
         <div className="absolute bg-[#E2FF3B]" style={{ top: '-3px', left: '8px', width: '10px', height: '3px' }} />
         <div className="absolute bg-[#E2FF3B]" style={{ bottom: '-3px', right: '8px', width: '10px', height: '3px' }} />
         <div className="absolute bg-[#E2FF3B]" style={{ top: '15%', right: '-3px', width: '3px', height: '70%' }} />

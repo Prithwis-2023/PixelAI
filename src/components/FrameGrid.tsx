@@ -31,10 +31,10 @@ export default function FrameGrid({ frames = DUMMY_FRAMES }: FrameGridProps) {
               key={frame.id}
               src={frame.url}
               alt={`FRAME_${String(frame.id).padStart(3, '0')}`}
-              className="w-full h-full object-cover min-h-0"
+              className="w-full h-full object-cover min-h-0 pixel-frame"
             />
           ) : (
-            <div key={frame.id} className="bg-[#E2FF3B] min-h-0" />
+            <div key={frame.id} className="bg-[#E2FF3B] min-h-0 pixel-frame" />
           )
         )}
       </div>

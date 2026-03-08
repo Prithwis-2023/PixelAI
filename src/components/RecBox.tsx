@@ -33,6 +33,7 @@ export default function RecBox({ fileName = 'INPUT_VIDEO.MP4', fileSizeMB = 1.33
 
       <button
         onClick={onReset}
+        className="pixel-btn-outline"
         style={{
           marginTop: '14px',
           border: '1px solid #E2FF3B',
