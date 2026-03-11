@@ -41,16 +41,18 @@ export default function App() {
     >
       <Header />
 
-      <div className="flex flex-1 min-h-0 gap-7" style={{ padding: '16px 32px 12px 32px' }}>
-        <Sidebar
-          tag={tag}
-          onTagChange={setTag}
-          onExecute={handleExecute}
-          onReset={handleReset}
-        />
-        <MainPanel
-          onExtract={handleExtract}
-        />
+      <div className="flex flex-1 min-h-0 justify-center" style={{ padding: '16px 32px 12px 32px' }}>
+        <div className="flex gap-7 w-full" style={{ maxWidth: '900px' }}>
+          <Sidebar
+            tag={tag}
+            onTagChange={setTag}
+            onExecute={handleExecute}
+            onReset={handleReset}
+          />
+          <MainPanel
+            onExtract={handleExtract}
+          />
+        </div>
       </div>
     </div>
   );

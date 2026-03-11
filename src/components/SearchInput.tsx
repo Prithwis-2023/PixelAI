@@ -1,9 +1,11 @@
 import { SCP } from '../constants';
 
-const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E2FF3B" strokeWidth="2.5" strokeLinecap="round">
-    <circle cx="11" cy="11" r="7.5"/>
-    <line x1="21" y1="21" x2="16.5" y2="16.5"/>
+const HashtagIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E2FF3B" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="4" y1="9" x2="20" y2="9"/>
+    <line x1="4" y1="15" x2="20" y2="15"/>
+    <line x1="10" y1="3" x2="8" y2="21"/>
+    <line x1="16" y1="3" x2="14" y2="21"/>
   </svg>
 );
 
@@ -13,7 +15,7 @@ interface SearchInputProps {
   placeholder?: string;
 }
 
-/** 태그 입력 검색창 + 노란 돋보기 아이콘 */
+/** 태그 입력창 + 해시태그 아이콘 */
 export default function SearchInput({ value, onChange, placeholder = '' }: SearchInputProps) {
   return (
     <div className="relative shrink-0">
@@ -33,8 +35,9 @@ export default function SearchInput({ value, onChange, placeholder = '' }: Searc
         }}
       />
       <span className="absolute right-3 top-1/2 -translate-y-1/2">
-        <SearchIcon />
+        <HashtagIcon />
       </span>
     </div>
   );
 }
+

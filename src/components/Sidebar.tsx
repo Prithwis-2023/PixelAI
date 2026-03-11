@@ -1,6 +1,7 @@
 import { SCP } from '../constants';
 import SearchInput from './SearchInput';
 import RecBox from './RecBox';
+import SystemLog from './SystemLog';
 
 interface SidebarProps {
   tag: string;
@@ -9,7 +10,7 @@ interface SidebarProps {
   onReset?: () => void;
 }
 
-/** 좌측 패널 — 검색창 + [REC] 박스 + EXECUTE_UPLOAD 버튼 */
+/** 좌측 패널 — 검색창 + [REC] 박스 + EXECUTE_UPLOAD 버튼 + 시스템 로그 */
 export default function Sidebar({ tag, onTagChange, onExecute, onReset }: SidebarProps) {
   return (
     <aside className="shrink-0 flex flex-col gap-3" style={{ width: '230px' }}>
@@ -42,6 +43,10 @@ export default function Sidebar({ tag, onTagChange, onExecute, onReset }: Sideba
           EXECUTE_UPLOAD
         </button>
       </div>
+
+      {/* 시스템 로그 — 남은 공간 채움 */}
+      <SystemLog />
+
     </aside>
   );
 }
