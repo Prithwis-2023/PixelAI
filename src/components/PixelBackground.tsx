@@ -88,10 +88,13 @@ export default function PixelBackground() {
     ];
 
     const TETRIS_COLORS = [
-      'rgba(45, 235, 169, 0.15)', // 좀 더 진하게
-      'rgba(45, 235, 169, 0.25)',
-      'rgba(45, 235, 169, 0.40)',
-      'rgba(45, 235, 169, 0.60)',  
+      'rgba(255, 0, 0, 0.6)',     // Vibrant Red
+      'rgba(0, 255, 0, 0.6)',     // Vibrant Green
+      'rgba(0, 102, 255, 0.6)',   // Vibrant Blue
+      'rgba(255, 255, 0, 0.6)',   // Vibrant Yellow
+      'rgba(255, 102, 0, 0.6)',   // Vibrant Orange
+      'rgba(204, 0, 255, 0.6)',   // Vibrant Purple
+      'rgba(0, 255, 255, 0.6)'    // Vibrant Cyan
     ];
 
     type FallingBlock = {
@@ -129,19 +132,27 @@ export default function PixelBackground() {
 
       const createLaneBlocks = (numLanes: number, offsetStartX: number) => {
         for (let i = 0; i < numLanes; i++) {
-          // 수학적으로 레인마다 고유한 속도를 부여 (단, 같은 레인의 블록은 같은 속도이므로 절대 겹치지 않음)
           const laneSpeed = 0.5 + Math.random() * 0.9; 
+          let currentY = height + Math.random() * 300; 
           
-          let currentY = height + Math.random() * 300; // 시작 위치에 수학적 위상차(Phase) 추가
-          
+          let lastColorIndex = -1; // 이전 색상 기억 (연속 중복 방지)
+
           for (let j = 0; j < blocksPerLane; j++) {
-            currentY -= (verticalSpacing + Math.random() * 400); // 블록 간 간격을 불규칙하게(랜덤) 배치
+            currentY -= (verticalSpacing + Math.random() * 400); 
             
+            // 이전 색상과 다른 색상이 나올 때까지 무한루프
+            let newColorIndex;
+            do {
+              newColorIndex = Math.floor(Math.random() * TETRIS_COLORS.length);
+            } while (newColorIndex === lastColorIndex);
+            
+            lastColorIndex = newColorIndex;
+
             fallingBlocks.push({
-              x: offsetStartX + i * laneWidth + Math.random() * tBlockSize, // 좌우로 약간의 흔들림 변주
+              x: offsetStartX + i * laneWidth + Math.random() * tBlockSize,
               y: currentY,
               shape: TETRIS_SHAPES[Math.floor(Math.random() * TETRIS_SHAPES.length)],
-              color: TETRIS_COLORS[Math.floor(Math.random() * TETRIS_COLORS.length)],
+              color: TETRIS_COLORS[newColorIndex],
               speed: laneSpeed,
               laneX: offsetStartX + i * laneWidth
             });
@@ -188,7 +199,30 @@ export default function PixelBackground() {
           b.y = minY - (250 + Math.random() * 400); 
           b.x = b.laneX + Math.random() * tBlockSize;
           b.shape = TETRIS_SHAPES[Math.floor(Math.random() * TETRIS_SHAPES.length)];
-          b.color = TETRIS_COLORS[Math.floor(Math.random() * TETRIS_COLORS.length)];
+          
+          // 자신의 바로 아래(원래는 가장 위에 있던 다른 블록) 블록과 색상이 겹치지 않도록 처리
+          const newColorIndices: number[] = [];
+          for(let colorIdx=0; colorIdx<TETRIS_COLORS.length; colorIdx++) {
+            const potentialCol = TETRIS_COLORS[colorIdx];
+            let isValid = true;
+            for (const other of fallingBlocks) {
+               // 최상단 근처 블록들과 비교 (같은 레인 안에서)
+               if (other !== b && other.laneX === b.laneX && Math.abs(other.y - b.y) < 2000) {
+                 if (other.color === potentialCol) {
+                   isValid = false;
+                   break;
+                 }
+               }
+            }
+            if(isValid) newColorIndices.push(colorIdx);
+          }
+
+          if(newColorIndices.length > 0) {
+            b.color = TETRIS_COLORS[newColorIndices[Math.floor(Math.random() * newColorIndices.length)]];
+          } else {
+             // 만약 모든 색이 겹친다면(거의 일어나지 않음) 그냥 랜덤
+             b.color = TETRIS_COLORS[Math.floor(Math.random() * TETRIS_COLORS.length)];
+          }
         }
       }
 
