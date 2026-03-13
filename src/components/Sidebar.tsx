@@ -13,7 +13,7 @@ interface SidebarProps {
 /** 좌측 패널 — 검색창 + [REC] 박스 + EXECUTE_UPLOAD 버튼 + 시스템 로그 */
 export default function Sidebar({ tag, onTagChange, onExecute, onReset }: SidebarProps) {
   return (
-    <aside className="shrink-0 flex flex-col gap-3" style={{ width: '230px' }}>
+    <aside className="shrink-0 flex flex-col gap-3 w-full h-full">
 
       <SearchInput value={tag} onChange={onTagChange} />
 
@@ -26,7 +26,7 @@ export default function Sidebar({ tag, onTagChange, onExecute, onReset }: Sideba
         <div className="absolute bg-[#E2FF3B]" style={{ top: '20%', left: '-3px', width: '3px', height: '60%' }} />
         <div className="absolute bg-[#E2FF3B]" style={{ top: '20%', right: '-3px', width: '3px', height: '60%' }} />
         <button
-          className="w-full relative z-10"
+          className="w-full relative z-10 break-words leading-tight flex items-center justify-center min-h-[36px] py-1.5 px-2"
           onClick={onExecute}
           style={{
             background: '#E2FF3B',
@@ -34,7 +34,6 @@ export default function Sidebar({ tag, onTagChange, onExecute, onReset }: Sideba
             fontWeight: 900,
             fontSize: '10px',
             letterSpacing: '0.14em',
-            padding: '10px 0',
             fontFamily: SCP,
             cursor: 'pointer',
             border: 'none',
@@ -45,7 +44,9 @@ export default function Sidebar({ tag, onTagChange, onExecute, onReset }: Sideba
       </div>
 
       {/* 시스템 로그 — 남은 공간 채움 */}
-      <SystemLog />
+      <div className="flex-1 mt-2 min-h-[200px] flex flex-col">
+        <SystemLog />
+      </div>
 
     </aside>
   );

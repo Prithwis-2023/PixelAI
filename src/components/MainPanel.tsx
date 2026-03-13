@@ -19,10 +19,12 @@ export default function MainPanel({
   extractDisabled = false,
 }: MainPanelProps) {
   return (
-    <main className="flex flex-col min-w-0 min-h-0 gap-3" style={{ flex: '1 1 0', maxWidth: '560px' }}>
+    <main className="flex flex-col min-w-0 min-h-0 gap-4 w-full h-full">
       <OperationSummary frameCount={frameCount} credits={credits} />
       <DatasetBox onExtract={onExtract} disabled={extractDisabled} />
-      <StatsDisplay />
+      <div className="flex-1 min-h-0 flex flex-col">
+        <StatsDisplay />
+      </div>
     </main>
   );
 }

@@ -9,7 +9,7 @@ interface SearchInputProps {
 }
 
 /** 태그 입력창 — 해시태그 버튼 클릭 or Enter로 태그 확정 */
-export default function SearchInput({ value, onChange, onSubmit, placeholder = '' }: SearchInputProps) {
+export default function SearchInput({ value, onChange, onSubmit, placeholder = 'Enter keyword...' }: SearchInputProps) {
   const [pressed, setPressed] = useState(false);
 
   const handleSubmit = () => {

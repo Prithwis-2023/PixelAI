@@ -38,7 +38,7 @@ export default function App() {
 
   return (
     <div
-      className="w-screen h-screen bg-black text-white overflow-hidden flex flex-col"
+      className="w-full min-h-screen md:h-screen bg-black text-white overflow-x-hidden md:overflow-hidden flex flex-col"
       style={{ fontFamily: SCP }}
     >
       <Header 
@@ -46,17 +46,21 @@ export default function App() {
         onOpenSignup={() => setAuthMode('signup')} 
       />
 
-      <div className="flex flex-1 min-h-0 justify-center" style={{ padding: '16px 32px 12px 32px' }}>
-        <div className="flex gap-7 w-full" style={{ maxWidth: '900px' }}>
-          <Sidebar
-            tag={tag}
-            onTagChange={setTag}
-            onExecute={handleExecute}
-            onReset={handleReset}
-          />
-          <MainPanel
-            onExtract={handleExtract}
-          />
+      <div className="flex flex-1 md:min-h-0 justify-center p-4 md:px-8 md:py-4 overflow-y-auto w-full">
+        <div className="flex flex-col md:flex-row gap-5 md:gap-7 w-full md:max-w-[900px]">
+          <div className="w-full md:w-[230px] shrink-0">
+            <Sidebar
+              tag={tag}
+              onTagChange={setTag}
+              onExecute={handleExecute}
+              onReset={handleReset}
+            />
+          </div>
+          <div className="w-full flex-1 md:max-w-[560px] min-w-0">
+            <MainPanel
+              onExtract={handleExtract}
+            />
+          </div>
         </div>
       </div>
 

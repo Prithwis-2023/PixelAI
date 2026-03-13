@@ -10,43 +10,30 @@ interface RecBoxProps {
 export default function RecBox({ fileName = 'INPUT_VIDEO.MP4', fileSizeMB = 1.33, onReset }: RecBoxProps) {
   return (
     <div
-      className="flex flex-col items-center justify-center gap-2"
+      className="flex flex-col items-center justify-center gap-2 p-4 min-w-0"
       style={{
         border: '1px solid rgba(255,255,255,0.5)',
-        flex: '1 1 0',
-        minHeight: 0,
-        maxHeight: 'calc(100vh - 80px - 28px - 50px - 12px - 48px - 12px)',
+        flex: '1 1 auto',
+        minHeight: '150px',
       }}
     >
-      <span style={{ fontSize: '40px', fontWeight: 900, letterSpacing: '0.06em', lineHeight: 1, color: 'white', fontFamily: SCP }}>
+      <span className="text-[32px] md:text-[40px] font-black tracking-[0.06em] leading-none text-white break-words text-center" style={{ fontFamily: SCP }}>
         [REC]
       </span>
 
-      <div className="text-center" style={{ marginTop: '12px' }}>
-        <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', color: 'white', fontFamily: SCP }}>
+      <div className="text-center mt-3 min-w-0 w-full px-2">
+        <p className="text-[10px] font-bold tracking-[0.12em] text-white break-all line-clamp-2" style={{ fontFamily: SCP }}>
           IDENTIFIED: {fileName}
         </p>
-        <p style={{ fontSize: '9px', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', marginTop: '4px', fontFamily: SCP }}>
+        <p className="text-[9px] tracking-[0.12em] text-white/40 mt-1 break-words" style={{ fontFamily: SCP }}>
           SIZE: {fileSizeMB.toFixed(2)}MB
         </p>
       </div>
 
       <button
         onClick={onReset}
-        className="pixel-btn-outline"
-        style={{
-          marginTop: '14px',
-          border: '1px solid #E2FF3B',
-          color: '#E2FF3B',
-          fontSize: '9px',
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          padding: '6px 18px',
-          background: 'transparent',
-          fontFamily: SCP,
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}
+        className="pixel-btn-outline mt-3 border border-[#E2FF3B] text-[#E2FF3B] text-[9px] font-bold tracking-[0.08em] px-4 py-2 hover:bg-[#E2FF3B] hover:text-black transition-colors break-words text-center max-w-full leading-tight"
+        style={{ fontFamily: SCP }}
       >
         // RESET_IDENTIFICATION
       </button>

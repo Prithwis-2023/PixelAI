@@ -8,20 +8,20 @@ interface OperationSummaryProps {
 /** 상단 요약 — DATA_SAVED 프레임 수 + REWARDS ISSUED 크레딧 */
 export default function OperationSummary({ frameCount = 7, credits = 70 }: OperationSummaryProps) {
   return (
-    <div className="flex justify-between items-start shrink-0">
-      <div>
+    <div className="flex flex-col sm:flex-row justify-between items-start shrink-0 gap-4 sm:gap-0">
+      <div className="min-w-0 break-words">
         <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', marginBottom: '4px', fontFamily: SCP }}>
           OPERATION SUMMARY
         </p>
-        <h2 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '0.06em', lineHeight: 1, color: 'white', fontFamily: SCP, whiteSpace: 'nowrap' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '0.06em', lineHeight: 1.2, color: 'white', fontFamily: SCP }}>
           DATA_SAVED: {frameCount} FRAMES
         </h2>
       </div>
-      <div className="text-right shrink-0" style={{ paddingLeft: '20px' }}>
+      <div className="sm:text-right shrink-0 min-w-0 pl-0 sm:pl-5">
         <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', marginBottom: '4px', fontFamily: SCP }}>
           REWARDS ISSUED
         </p>
-        <p style={{ fontSize: '22px', fontWeight: 900, color: '#E2FF3B', lineHeight: 1, fontFamily: SCP, whiteSpace: 'nowrap' }}>
+        <p style={{ fontSize: '22px', fontWeight: 900, color: '#E2FF3B', lineHeight: 1.2, fontFamily: SCP }}>
           +{credits} CR
         </p>
       </div>
