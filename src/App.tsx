@@ -3,6 +3,7 @@ import { SCP } from './constants';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import MainPanel from './components/MainPanel';
+import AuthModal from './components/AuthModal';
 
 /**
  * App — 루트 컴포넌트
@@ -13,6 +14,7 @@ import MainPanel from './components/MainPanel';
  */
 export default function App() {
   const [tag, setTag] = useState('');
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
 
   // TODO: 백엔드 연동 시 추가할 상태들
   // const [appState, setAppState] = useState<AppState>('idle');
@@ -39,7 +41,10 @@ export default function App() {
       className="w-screen h-screen bg-black text-white overflow-hidden flex flex-col"
       style={{ fontFamily: SCP }}
     >
-      <Header />
+      <Header 
+        onOpenLogin={() => setAuthMode('login')} 
+        onOpenSignup={() => setAuthMode('signup')} 
+      />
 
       <div className="flex flex-1 min-h-0 justify-center" style={{ padding: '16px 32px 12px 32px' }}>
         <div className="flex gap-7 w-full" style={{ maxWidth: '900px' }}>
@@ -54,6 +59,14 @@ export default function App() {
           />
         </div>
       </div>
+
+      {/* 인증 모달 */}
+      {authMode && (
+        <AuthModal 
+          initialMode={authMode} 
+          onClose={() => setAuthMode(null)} 
+        />
+      )}
     </div>
   );
 }
