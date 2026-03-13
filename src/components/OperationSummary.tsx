@@ -1,4 +1,6 @@
-import { SCP } from '../constants';
+
+
+import { S } from '../styles/OperationSummary.styles';
 
 interface OperationSummaryProps {
   frameCount?: number;
@@ -8,20 +10,20 @@ interface OperationSummaryProps {
 /** 상단 요약 — DATA_SAVED 프레임 수 + REWARDS ISSUED 크레딧 */
 export default function OperationSummary({ frameCount = 7, credits = 70 }: OperationSummaryProps) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start shrink-0 gap-4 sm:gap-0">
-      <div className="min-w-0 break-words">
-        <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', marginBottom: '4px', fontFamily: SCP }}>
+    <div className={S.container}>
+      <div className={S.leftBlock}>
+        <p style={S.opsLabel}>
           OPERATION SUMMARY
         </p>
-        <h2 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '0.06em', lineHeight: 1.2, color: 'white', fontFamily: SCP }}>
+        <h2 style={S.dataSaved}>
           DATA_SAVED: {frameCount} FRAMES
         </h2>
       </div>
-      <div className="sm:text-right shrink-0 min-w-0 pl-0 sm:pl-5">
-        <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', marginBottom: '4px', fontFamily: SCP }}>
+      <div className={S.rightBlock}>
+        <p style={S.rewardLabel}>
           REWARDS ISSUED
         </p>
-        <p style={{ fontSize: '22px', fontWeight: 900, color: '#E2FF3B', lineHeight: 1.2, fontFamily: SCP }}>
+        <p style={S.credits}>
           +{credits} CR
         </p>
       </div>

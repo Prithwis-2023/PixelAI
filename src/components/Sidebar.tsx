@@ -1,7 +1,7 @@
-import { SCP } from '../constants';
 import SearchInput from './SearchInput';
 import RecBox from './RecBox';
 import SystemLog from './SystemLog';
+import { S } from '../styles/Sidebar.styles';
 
 interface SidebarProps {
   tag: string;
@@ -13,38 +13,29 @@ interface SidebarProps {
 /** 좌측 패널 — 검색창 + [REC] 박스 + EXECUTE_UPLOAD 버튼 + 시스템 로그 */
 export default function Sidebar({ tag, onTagChange, onExecute, onReset }: SidebarProps) {
   return (
-    <aside className="shrink-0 flex flex-col gap-3 w-full h-full">
+    <aside className={S.container}>
 
       <SearchInput value={tag} onChange={onTagChange} />
 
       <RecBox onReset={onReset} />
 
       {/* EXECUTE_UPLOAD — 글리치 장식 + 노란 채움 버튼 */}
-      <div className="shrink-0 relative pixel-btn-primary">
-        <div className="absolute bg-[#E2FF3B]" style={{ top: '-3px', left: '10px', width: '12px', height: '3px' }} />
-        <div className="absolute bg-[#E2FF3B]" style={{ bottom: '-3px', right: '10px', width: '12px', height: '3px' }} />
-        <div className="absolute bg-[#E2FF3B]" style={{ top: '20%', left: '-3px', width: '3px', height: '60%' }} />
-        <div className="absolute bg-[#E2FF3B]" style={{ top: '20%', right: '-3px', width: '3px', height: '60%' }} />
+      <div className={S.executeBtnWrapper}>
+        <div className="absolute" style={S.glitchTopLeft} />
+        <div className="absolute" style={S.glitchBottomRight} />
+        <div className="absolute" style={S.glitchLeft} />
+        <div className="absolute" style={S.glitchRight} />
         <button
-          className="w-full relative z-10 break-words leading-tight flex items-center justify-center min-h-[36px] py-1.5 px-2"
+          className={S.executeBtn}
           onClick={onExecute}
-          style={{
-            background: '#E2FF3B',
-            color: 'black',
-            fontWeight: 900,
-            fontSize: '10px',
-            letterSpacing: '0.14em',
-            fontFamily: SCP,
-            cursor: 'pointer',
-            border: 'none',
-          }}
+          style={S.executeBtnStyle}
         >
           EXECUTE_UPLOAD
         </button>
       </div>
 
       {/* 시스템 로그 — 남은 공간 채움 */}
-      <div className="flex-1 mt-2 min-h-[200px] flex flex-col">
+      <div className={S.logContainer}>
         <SystemLog />
       </div>
 

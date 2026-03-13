@@ -2,6 +2,7 @@ import OperationSummary from './OperationSummary';
 import DatasetBox from './DatasetBox';
 import StatsDisplay from './StatsDisplay';
 import type { ExtractedFrame } from '../types';
+import { S } from '../styles/MainPanel.styles';
 
 interface MainPanelProps {
   frameCount?: number;
@@ -19,10 +20,10 @@ export default function MainPanel({
   extractDisabled = false,
 }: MainPanelProps) {
   return (
-    <main className="flex flex-col min-w-0 min-h-0 gap-4 w-full h-full">
+    <main className={S.container}>
       <OperationSummary frameCount={frameCount} credits={credits} />
       <DatasetBox onExtract={onExtract} disabled={extractDisabled} />
-      <div className="flex-1 min-h-0 flex flex-col">
+      <div className={S.statsContainer}>
         <StatsDisplay />
       </div>
     </main>

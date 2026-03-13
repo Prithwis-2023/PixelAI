@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SCP } from '../constants';
+import { S } from '../styles/AuthModal.styles';
 
 type AuthMode = 'login' | 'signup';
 
@@ -11,104 +12,91 @@ interface AuthModalProps {
 export default function AuthModal({ initialMode = 'login', onClose }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div className={S.overlay}>
       {/* 바깥 클릭 영역 */}
-      <div className="absolute inset-0" onClick={onClose} />
+      <div className={S.overlayClickArea} onClick={onClose} />
 
       {/* 모달 창 본체 */}
-      <div 
-        className="relative bg-black w-full max-w-[400px] border border-[#E2FF3B] shadow-[0_0_30px_rgba(226,255,59,0.15)] flex flex-col mx-auto"
-        style={{ fontFamily: SCP }}
-      >
+      <div className={S.modalContainer} style={{ fontFamily: SCP }}>
         {/* 장식용 코너 요소 */}
-        <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#E2FF3B] -translate-x-[1px] -translate-y-[1px]" />
-        <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-[#E2FF3B] translate-x-[1px] -translate-y-[1px]" />
-        <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-[#E2FF3B] -translate-x-[1px] translate-y-[1px]" />
-        <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#E2FF3B] translate-x-[1px] translate-y-[1px]" />
+        <div className={S.cornerTopLeft} />
+        <div className={S.cornerTopRight} />
+        <div className={S.cornerBottomLeft} />
+        <div className={S.cornerBottomRight} />
 
         {/* 헤더 바 */}
-        <div className="flex justify-between items-center border-b border-[#E2FF3B]/30 p-4 bg-[#E2FF3B]/5 min-w-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[#E2FF3B] text-[10px] md:text-xs font-bold tracking-widest break-all md:break-words line-clamp-2">
+        <div className={S.headerBar}>
+          <div className={S.headerTitleContainer}>
+            <span className={S.headerTitle}>
               {mode === 'login' ? '//_SYSTEM_LOGIN' : '//_NEW_OPERATOR_REG_'}
             </span>
           </div>
-          <button 
-            onClick={onClose}
-            className="text-white/50 hover:text-[#E2FF3B] transition-colors text-xs tracking-widest p-1 shrink-0 ml-2"
-          >
+          <button onClick={onClose} className={S.closeButton}>
             [ESC]
           </button>
         </div>
 
         {/* 내용 영역 */}
-        <div className="p-6 md:p-8 pb-8 md:pb-10 flex flex-col gap-6 min-w-0">
-          <div className="break-words">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tighter text-white mb-2 leading-none uppercase">
+        <div className={S.contentArea}>
+          <div className={S.titleContainer}>
+            <h2 className={S.title}>
               {mode === 'login' ? 'Authentication Required' : 'Operator Registration'}
             </h2>
-            <p className="text-[10px] md:text-xs text-white/50 tracking-wide uppercase">
+            <p className={S.subtitle}>
               {mode === 'login' 
                 ? 'Proceed to verify credentials.' 
                 : 'Create secure system access.'}
             </p>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5 min-w-0">
-              <label className="text-[10px] text-[#E2FF3B] uppercase tracking-widest break-words">Operator ID / Email</label>
-              <input 
-                type="text" 
-                placeholder="Enter identifier..."
-                className="w-full bg-[#111] border border-[#E2FF3B]/30 px-3 py-3 text-white outline-none focus:border-[#E2FF3B] focus:bg-black transition-colors text-sm"
-              />
+          <div className={S.formContainer}>
+            <div className={S.inputGroup}>
+              <label className={S.label}>Operator ID / Email</label>
+              <input type="text" placeholder="Enter identifier..." className={S.input} />
             </div>
             
-            <div className="flex flex-col gap-1.5 min-w-0">
-              <label className="text-[10px] text-[#E2FF3B] uppercase tracking-widest break-words">Passcode</label>
-              <input 
-                type="password" 
-                placeholder="••••••••"
-                className="w-full bg-[#111] border border-[#E2FF3B]/30 px-3 py-3 text-white outline-none focus:border-[#E2FF3B] focus:bg-black transition-colors text-sm"
-              />
+            <div className={S.inputGroup}>
+              <label className={S.label}>Passcode</label>
+              <input type="password" placeholder="••••••••" className={S.input} />
             </div>
 
             {mode === 'signup' && (
-              <div className="flex flex-col gap-1.5 min-w-0">
-                <label className="text-[10px] text-[#E2FF3B] uppercase tracking-widest break-words">Confirm Passcode</label>
-                <input 
-                  type="password" 
-                  placeholder="••••••••"
-                  className="w-full bg-[#111] border border-[#E2FF3B]/30 px-3 py-3 text-white outline-none focus:border-[#E2FF3B] focus:bg-black transition-colors text-sm"
-                />
+              <div className={S.inputGroup}>
+                <label className={S.label}>Confirm Passcode</label>
+                <input type="password" placeholder="••••••••" className={S.input} />
               </div>
             )}
           </div>
 
-          <button className="w-full bg-[#E2FF3B] text-black font-black uppercase tracking-widest py-3 md:py-4 mt-2 hover:bg-white transition-colors active:scale-[0.98] leading-tight break-words">
+          <button className={S.submitButton}>
             {mode === 'login' ? 'Init Session' : 'Register Operator'}
           </button>
 
           {/* 전환 링크 */}
-          <div className="mt-2 text-center text-[10px] md:text-xs text-white/50 break-words flex flex-wrap justify-center gap-1">
+          <div className={S.toggleLinkContainer}>
             {mode === 'login' ? (
               <>
                 <span>UNREGISTERED?</span>
-                <button 
-                  onClick={() => setMode('signup')}
-                  className="text-[#E2FF3B] hover:underline uppercase tracking-wide decoration-[#E2FF3B]/50 underline-offset-4"
-                >
+                <button onClick={() => setMode('signup')} className={S.toggleLinkButton}>
                   Create Identity
                 </button>
               </>
             ) : (
               <>
                 <span>KNOWN OPERATOR?</span>
-                <button 
-                  onClick={() => setMode('login')}
-                  className="text-[#E2FF3B] hover:underline uppercase tracking-wide decoration-[#E2FF3B]/50 underline-offset-4"
-                >
+                <button onClick={() => setMode('login')} className={S.toggleLinkButton}>
                   Login Here
                 </button>
               </>

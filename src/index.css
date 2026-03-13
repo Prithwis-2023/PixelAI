@@ -13,14 +13,14 @@
 .pixel-btn-outline {
   transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
-.pixel-btn-outline:hover  { background: #E2FF3B !important; color: #000 !important; }
+.pixel-btn-outline:hover  { background: #2DEBA9 !important; color: #000 !important; }
 .pixel-btn-outline:active { transform: scale(0.96); }
 
 /* 검색 인풋 포커스 링 */
 .pixel-input:focus {
   border-color: rgba(255,255,255,0.9) !important;
   outline: none;
-  box-shadow: 0 0 0 1px rgba(226,255,59,0.2);
+  box-shadow: 0 0 0 1px rgba(45,235,169,0.2);
 }
 
 /* 프레임 그리드 셀 */
