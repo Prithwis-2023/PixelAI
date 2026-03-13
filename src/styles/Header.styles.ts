@@ -1,7 +1,7 @@
 import { SCP } from '../constants';
 
 export const S = {
-  headerContainer: "shrink-0 flex items-center justify-between px-4 md:px-8 border-b border-[#2DEBA9]",
+  headerContainer: "relative z-10 shrink-0 flex items-center justify-between px-4 md:px-8 border-b border-[#2DEBA9] bg-black/60 backdrop-blur-sm",
   headerStyle: { height: '80px' },
 
   logoGroup: "flex items-center gap-3 md:gap-5",

@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import MainPanel from './components/MainPanel';
 import AuthModal from './components/AuthModal';
+import PixelBackground from './components/PixelBackground';
 import { S } from './styles/App.styles';
 
 /**
@@ -38,6 +39,7 @@ export default function App() {
 
   return (
     <div className={S.appContainer} style={S.appFont}>
+      <PixelBackground />
       <Header 
         onOpenLogin={() => setAuthMode('login')} 
         onOpenSignup={() => setAuthMode('signup')} 
