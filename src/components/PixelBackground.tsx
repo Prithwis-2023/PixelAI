@@ -23,36 +23,6 @@ const baseSprites = {
     ".....11..11.....",
     "....111..111...."
   ],
-  spike: [
-    ".......11.......",
-    "......1111......",
-    ".....110011.....",
-    "....11000011....",
-    "...1100000011...",
-    "..110000000011..",
-    ".11111111111111.",
-    "1111111111111111"
-  ],
-  spike_down: [
-    "1111111111111111",
-    ".11111111111111.",
-    "..110000000011..",
-    "...1100000011...",
-    "....11000011....",
-    ".....110011.....",
-    "......1111......",
-    ".......11......."
-  ],
-  cherry: [
-    ".......1........",
-    "......11........",
-    ".....1.1........",
-    "...11..1..11....",
-    "..101.....101...",
-    ".10001...10001..",
-    ".10001...10001..",
-    "..111.....111..."
-  ],
   block: [
     "1111111111111111",
     "1000000100000001",
@@ -72,13 +42,6 @@ const SPRITES = {
   kid_left: baseSprites.kid.map(row => row.split('').reverse().join(''))
 };
 
-type Entity = {
-  type: keyof typeof SPRITES;
-  x: number;
-  y: number;
-  baseY?: number;
-};
-
 function drawSprite(ctx: CanvasRenderingContext2D, sprite: string[], x: number, y: number, scale: number) {
   for(let r=0; r<sprite.length; r++){
     for(let c=0; c<sprite[r].length; c++){
@@ -93,7 +56,6 @@ function drawSprite(ctx: CanvasRenderingContext2D, sprite: string[], x: number, 
   }
 }
 
-/** 8-bit 스타일의 레트로 테두리 배경 (IWBTG / 마리오 감성) - 중앙 비우기 */
 export default function PixelBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -105,94 +67,167 @@ export default function PixelBackground() {
 
     let width = 0;
     let height = 0;
-    const scale = 2; // 1픽셀을 2x2 사이즈로
+    const scale = 2; 
     const blockW = 16 * scale;
+    
+    // Character state
+    let kidX = 0;
+    let kidVx = 1; // 기본 속도 많이 낮춤 (기존 4)
+    let isPaused = false;
+    let pauseTimer = 0;
 
-    let elements: Entity[] = [];
+    // Falling Tetris Blocks state
+    const TETRIS_SHAPES = [
+      [[1, 1, 1, 1]], // I
+      [[1, 1], [1, 1]], // O
+      [[1, 1, 1], [0, 1, 0]], // T
+      [[1, 1, 0], [0, 1, 1]], // Z
+      [[0, 1, 1], [1, 1, 0]], // S
+      [[1, 0, 0], [1, 1, 1]], // L
+      [[0, 0, 1], [1, 1, 1]], // J
+    ];
 
-    const generateScene = () => {
-      elements = [];
-      const MAX_CONTENT_WIDTH = 960;
-      const marginX = Math.max(0, (width - MAX_CONTENT_WIDTH) / 2);
+    const TETRIS_COLORS = [
+      'rgba(45, 235, 169, 0.15)', // 좀 더 진하게
+      'rgba(45, 235, 169, 0.25)',
+      'rgba(45, 235, 169, 0.40)',
+      'rgba(45, 235, 169, 0.60)',  
+    ];
 
-      // 바닥 및 천장
-      for(let x = 0; x < width; x += blockW) {
-        elements.push({ type: 'block', x, y: height - blockW });
-        elements.push({ type: 'block', x, y: 0 });
-
-        // 중앙(메인 컨텐츠 영역) 밖인 경우에만 가시 추가
-        if (x < marginX - blockW || x > width - marginX) {
-          if (Math.random() < 0.25) {
-            elements.push({ type: 'spike', x, y: height - blockW - 8 * scale });
-          }
-          if (Math.random() < 0.15) {
-            elements.push({ type: 'spike_down', x, y: blockW });
-          }
-        }
-      }
-
-      // 좌우 테두리에 떠있는 플랫폼과 오브젝트들 배치
-      if (marginX > blockW * 4) {
-        const numPlatforms = Math.floor(height / 140);
-        for(let i=0; i<numPlatforms; i++) {
-          // 좌측 플랫폼
-          let px1 = blockW + Math.random() * (marginX - blockW * 5);
-          let py1 = blockW * 3 + Math.random() * (height - blockW * 6);
-          for(let b=0; b<3; b++) elements.push({ type: 'block', x: px1 + b * blockW, y: py1 });
-          
-          if(Math.random() > 0.4) elements.push({ type: 'cherry', x: px1 + blockW, y: py1 - 10 * scale, baseY: py1 - 10 * scale });
-          else if(Math.random() > 0.5) elements.push({ type: 'spike', x: px1 + blockW, y: py1 - 8 * scale });
-          else elements.push({ type: 'kid', x: px1 + blockW, y: py1 - 16 * scale });
-
-          // 우측 플랫폼
-          let px2 = width - marginX + blockW + Math.random() * (marginX - blockW * 5);
-          let py2 = blockW * 3 + Math.random() * (height - blockW * 6);
-          for(let b=0; b<3; b++) elements.push({ type: 'block', x: px2 + b * blockW, y: py2 });
-          
-          if(Math.random() > 0.4) elements.push({ type: 'cherry', x: px2 + blockW, y: py2 - 10 * scale, baseY: py2 - 10 * scale });
-          else if(Math.random() > 0.5) elements.push({ type: 'spike', x: px2 + blockW, y: py2 - 8 * scale });
-          else elements.push({ type: 'kid_left', x: px2 + blockW, y: py2 - 16 * scale });
-        }
-      }
-
-      // 바닥에 주인공들 랜덤 배치
-      if (marginX > blockW * 3) {
-        elements.push({ type: 'kid', x: blockW * 2, y: height - blockW - 16 * scale });
-        elements.push({ type: 'kid_left', x: width - blockW * 4, y: height - blockW - 16 * scale });
-      }
+    type FallingBlock = {
+      x: number;
+      y: number;
+      shape: number[][];
+      color: string;
+      speed: number;
+      laneX: number;
     };
+    
+    let fallingBlocks: FallingBlock[] = [];
+    const tBlockSize = 24;
+
+    let marginX = 0;
+    const MAX_CONTENT_WIDTH = 960;
 
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
-      generateScene();
+      
+      marginX = Math.max(0, (width - MAX_CONTENT_WIDTH) / 2);
+      kidX = blockW; // Reset kid position
+
+      fallingBlocks = [];
+      const laneWidth = tBlockSize * 5;
+      const numLanesLeft = Math.floor(marginX / laneWidth);
+      const rightStart = marginX + MAX_CONTENT_WIDTH;
+      const numLanesRight = Math.floor((width - rightStart) / laneWidth);
+
+      const verticalSpacing = 250; // 원천적으로 겹침을 방지하기 위한 최소 간격
+      const blocksPerLane = Math.ceil(height / verticalSpacing) + 1;
+
+      const createLaneBlocks = (numLanes: number, offsetStartX: number) => {
+        for (let i = 0; i < numLanes; i++) {
+          // 수학적으로 레인마다 고유한 속도를 부여 (단, 같은 레인의 블록은 같은 속도이므로 절대 겹치지 않음)
+          const laneSpeed = 0.5 + Math.random() * 0.9; 
+          
+          let currentY = height + Math.random() * 300; // 시작 위치에 수학적 위상차(Phase) 추가
+          
+          for (let j = 0; j < blocksPerLane; j++) {
+            currentY -= (verticalSpacing + Math.random() * 400); // 블록 간 간격을 불규칙하게(랜덤) 배치
+            
+            fallingBlocks.push({
+              x: offsetStartX + i * laneWidth + Math.random() * tBlockSize, // 좌우로 약간의 흔들림 변주
+              y: currentY,
+              shape: TETRIS_SHAPES[Math.floor(Math.random() * TETRIS_SHAPES.length)],
+              color: TETRIS_COLORS[Math.floor(Math.random() * TETRIS_COLORS.length)],
+              speed: laneSpeed,
+              laneX: offsetStartX + i * laneWidth
+            });
+          }
+        }
+      };
+
+      createLaneBlocks(numLanesLeft, (marginX - numLanesLeft * laneWidth) / 2);
+      createLaneBlocks(numLanesRight, rightStart + (marginX - numLanesRight * laneWidth) / 2);
     };
 
     window.addEventListener('resize', resize);
     resize();
 
     let animationFrameId: number;
-    let time = 0;
 
     const tick = () => {
-      time += 0.05;
       ctx.clearRect(0, 0, width, height);
 
-      for(const el of elements) {
-        let drawY = el.y;
-        // 체리는 공중에 둥둥 떠다니는 애니메이션
-        if (el.type === 'cherry' && el.baseY !== undefined) {
-          drawY = el.baseY + Math.sin(time + el.x) * 4;
+      // --- 1. Draw slowly falling Tetris blocks ---
+      for (let i = fallingBlocks.length - 1; i >= 0; i--) {
+        const b = fallingBlocks[i];
+        b.y += b.speed;
+        
+        ctx.fillStyle = b.color;
+        for(let r=0; r<b.shape.length; r++) {
+          for(let c=0; c<b.shape[r].length; c++) {
+            if(b.shape[r][c]) {
+              // 구분이 가도록 1px의 내부 간격을 줌
+              ctx.fillRect(b.x + c * tBlockSize + 1, b.y + r * tBlockSize + 1, tBlockSize - 2, tBlockSize - 2);
+            }
+          }
         }
-        drawSprite(ctx, SPRITES[el.type], el.x, drawY, scale);
+
+        // 블록이 바닥(그리드)을 지나쳐 완전히 안 보이면 맨 위로 올려 배치
+        if (b.y > height) {
+          let minY = height;
+          for (const other of fallingBlocks) {
+            if (other.laneX === b.laneX && other.y < minY) {
+              minY = other.y;
+            }
+          }
+          // 최소 간격을 보장하면서 무작위성(위상차)을 추가해 자연스럽게 배치
+          b.y = minY - (250 + Math.random() * 400); 
+          b.x = b.laneX + Math.random() * tBlockSize;
+          b.shape = TETRIS_SHAPES[Math.floor(Math.random() * TETRIS_SHAPES.length)];
+          b.color = TETRIS_COLORS[Math.floor(Math.random() * TETRIS_COLORS.length)];
+        }
       }
+
+      // --- 2. Draw Bottom Floor ---
+      for (let x = 0; x < width; x += blockW) {
+        drawSprite(ctx, SPRITES.block, x, height - blockW, scale);
+      }
+
+      // --- 3. Draw Moving Character ---
+      if (isPaused) {
+        pauseTimer -= 16; // 대략 60fps 기준 ms 차감
+        if (pauseTimer <= 0) {
+          isPaused = false;
+        }
+      } else {
+        kidX += kidVx;
+        
+        // 1.5% 확률로 멈춤 (약 1~3초간)
+        if (Math.random() < 0.015) {
+          isPaused = true;
+          pauseTimer = 1000 + Math.random() * 2000; 
+        }
+
+        if (kidX < 0) {
+          kidX = 0;
+          kidVx = Math.abs(kidVx);
+        } else if (kidX > width - blockW) {
+          kidX = width - blockW;
+          kidVx = -Math.abs(kidVx);
+        }
+      }
+
+      const kidSprite = kidVx > 0 ? SPRITES.kid : SPRITES.kid_left;
+      drawSprite(ctx, kidSprite, kidX, height - blockW - 16 * scale, scale);
 
       animationFrameId = requestAnimationFrame(tick);
     };
     
-    tick();
+    animationFrameId = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener('resize', resize);
