@@ -1,3 +1,5 @@
 .venv
 .env
 temp_frames/
+dataset/
+*.mp4
