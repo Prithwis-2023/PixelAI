@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
+import { fetchCurrentUser, getAuthSuccessMessage, loginUser, signupUser } from './api/auth';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import MainPanel from './components/MainPanel';
 import AuthModal from './components/AuthModal';
 import PixelBackground from './components/PixelBackground';
+import { API_BASE_URL, AUTH_TOKEN_STORAGE_KEY } from './constants';
 import { S } from './styles/App.styles';
-import type { AppState, ExtractedFrame } from './types';
-
-const API = 'http://localhost:8000';
+import type { AppState, AuthMode, AuthenticatedUser, ExtractedFrame } from './types';
 
 interface LogEntry {
   time: string;
@@ -17,7 +17,10 @@ interface LogEntry {
 
 export default function App() {
   // ─── Auth
-  const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
+  const [authMode, setAuthMode] = useState<AuthMode | null>(null);
+  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // ─── App state
   const [appState, setAppState] = useState<AppState>('idle');
@@ -46,10 +49,56 @@ export default function App() {
     setLogs(prev => [...prev, { time: _ts(), level, msg }]);
   }
 
+  function openAuthDialog(mode: AuthMode) {
+    setAuthError(null);
+    setAuthMode(mode);
+  }
+
+  async function handleAuthSubmit({
+    mode,
+    userLoginId,
+    password,
+  }: {
+    mode: AuthMode;
+    userLoginId: string;
+    password: string;
+  }) {
+    setAuthLoading(true);
+    setAuthError(null);
+
+    try {
+      if (mode === 'signup') {
+        await signupUser({ userLoginId, password });
+      }
+
+      const token = await loginUser({ userLoginId, password });
+      const user = await fetchCurrentUser(token.access_token);
+
+      window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token.access_token);
+      setCurrentUser(user);
+      setAuthMode(null);
+      pushLog('SUCCESS', getAuthSuccessMessage(mode, user.user_login_id));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Authentication failed.';
+      setAuthError(message);
+      pushLog('ERROR', `Authentication failed: ${message}`);
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  function handleLogout() {
+    window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    setCurrentUser(null);
+    setAuthError(null);
+    setAuthMode(null);
+    pushLog('INFO', 'Session closed.');
+  }
+
   function openSSE(jid: string) {
     if (sseRef.current) sseRef.current.close();
 
-    const es = new EventSource(`${API}/stream/${jid}`);
+    const es = new EventSource(`${API_BASE_URL}/stream/${jid}`);
     sseRef.current = es;
 
     es.onmessage = (e) => {
@@ -73,7 +122,7 @@ export default function App() {
 
   async function checkStatusOnDone(jid: string) {
     try {
-      const res = await fetch(`${API}/status/${jid}`);
+      const res = await fetch(`${API_BASE_URL}/status/${jid}`);
       const data = await res.json();
       if (data.label_status === 'done') {
         fetchAnnotatedFrames(jid);
@@ -85,7 +134,7 @@ export default function App() {
 
   async function fetchFrames(jid: string) {
     try {
-      const res = await fetch(`${API}/frames/${jid}`);
+      const res = await fetch(`${API_BASE_URL}/frames/${jid}`);
       if (!res.ok) return;
       const data = await res.json();
       setFrameCount(data.frame_count ?? 0);
@@ -99,7 +148,7 @@ export default function App() {
 
   async function fetchAnnotatedFrames(jid: string) {
     try {
-      const res = await fetch(`${API}/annotated/${jid}`);
+      const res = await fetch(`${API_BASE_URL}/annotated/${jid}`);
       if (!res.ok) return;
       const data = await res.json();
       if (data.frames && data.frames.length > 0) {
@@ -139,7 +188,7 @@ export default function App() {
       form.append('video', videoFile);
       form.append('keyword', tag.trim());
 
-      const uploadRes = await fetch(`${API}/upload`, { method: 'POST', body: form });
+      const uploadRes = await fetch(`${API_BASE_URL}/upload`, { method: 'POST', body: form });
       if (!uploadRes.ok) {
         const err = await uploadRes.json();
         throw new Error(err.detail ?? 'Upload failed');
@@ -151,7 +200,7 @@ export default function App() {
 
       // 2. Start processing
       setAppState('processing');
-      const procRes = await fetch(`${API}/process/${jid}`, { method: 'POST' });
+      const procRes = await fetch(`${API_BASE_URL}/process/${jid}`, { method: 'POST' });
       if (!procRes.ok) {
         const err = await procRes.json();
         throw new Error(err.detail ?? 'Processing start failed');
@@ -185,7 +234,7 @@ export default function App() {
     if (!jobId) return;
     pushLog('INFO', 'Starting YOLO labeling...');
     try {
-      const res = await fetch(`${API}/label/${jobId}`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/label/${jobId}`, { method: 'POST' });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.detail ?? 'Labeling failed');
@@ -204,7 +253,7 @@ export default function App() {
     }
     try {
       pushLog('INFO', 'Preparing dataset ZIP...');
-      const res = await fetch(`${API}/download/${jobId}`);
+      const res = await fetch(`${API_BASE_URL}/download/${jobId}`);
       if (!res.ok) {
         // If labeling not done yet, trigger it first
         pushLog('WARN', 'Dataset not ready. Starting labeling first...');
@@ -231,13 +280,50 @@ export default function App() {
     return () => { sseRef.current?.close(); };
   }, []);
 
+  useEffect(() => {
+    let ignore = false;
+
+    async function restoreSession() {
+      const storedToken = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+      if (!storedToken) return;
+
+      setAuthLoading(true);
+      setAuthError(null);
+
+      try {
+        const user = await fetchCurrentUser(storedToken);
+        if (!ignore) {
+          setCurrentUser(user);
+        }
+      } catch {
+        window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+        if (!ignore) {
+          setCurrentUser(null);
+        }
+      } finally {
+        if (!ignore) {
+          setAuthLoading(false);
+        }
+      }
+    }
+
+    void restoreSession();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className={S.appContainer} style={S.appFont}>
       <PixelBackground />
       <Header
-        onOpenLogin={() => setAuthMode('login')}
-        onOpenSignup={() => setAuthMode('signup')}
+        onOpenLogin={() => openAuthDialog('login')}
+        onOpenSignup={() => openAuthDialog('signup')}
+        onLogout={handleLogout}
+        currentUser={currentUser}
+        authBusy={authLoading}
       />
 
       <div className={S.mainLayout}>
@@ -270,6 +356,10 @@ export default function App() {
         <AuthModal
           initialMode={authMode}
           onClose={() => setAuthMode(null)}
+          onSubmit={handleAuthSubmit}
+          onClearError={() => setAuthError(null)}
+          errorMessage={authError}
+          isSubmitting={authLoading}
         />
       )}
     </div>

@@ -1,14 +1,23 @@
 
-
 import { S } from '../styles/Header.styles';
+import type { AuthenticatedUser } from '../types';
 
 interface HeaderProps {
   onOpenLogin: () => void;
   onOpenSignup: () => void;
+  onLogout: () => void;
+  currentUser: AuthenticatedUser | null;
+  authBusy: boolean;
 }
 
 /** 픽셀 도트 테두리 로고 + PIXEL 텍스트 + SYSTEM STATUS + 인증 버튼 */
-export default function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
+export default function Header({
+  onOpenLogin,
+  onOpenSignup,
+  onLogout,
+  currentUser,
+  authBusy,
+}: HeaderProps) {
   return (
     <header className={S.headerContainer} style={S.headerStyle}>
       <div className={S.logoGroup}>
@@ -30,20 +39,40 @@ export default function Header({ onOpenLogin, onOpenSignup }: HeaderProps) {
       </div>
 
       <div className={S.actionGroup}>
-        <button 
-          onClick={onOpenLogin}
-          className={S.loginBtn}
-          style={S.loginFont}
-        >
-          LOGIN
-        </button>
-        <button 
-          onClick={onOpenSignup}
-          className={S.signupBtn}
-          style={S.signupFont}
-        >
-          SIGN UP
-        </button>
+        {currentUser ? (
+          <>
+            <div className={S.userPanel}>
+              <span className={S.userLabel}>OPERATOR</span>
+              <span className={S.userValue}>{currentUser.user_login_id}</span>
+            </div>
+            <button
+              onClick={onLogout}
+              className={S.logoutBtn}
+              style={S.loginFont}
+            >
+              LOGOUT
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={onOpenLogin}
+              className={S.loginBtn}
+              style={S.loginFont}
+              disabled={authBusy}
+            >
+              LOGIN
+            </button>
+            <button
+              onClick={onOpenSignup}
+              className={S.signupBtn}
+              style={S.signupFont}
+              disabled={authBusy}
+            >
+              SIGN UP
+            </button>
+          </>
+        )}
       </div>
     </header>
   );

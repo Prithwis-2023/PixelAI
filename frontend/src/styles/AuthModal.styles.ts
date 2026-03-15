@@ -22,8 +22,9 @@ export const S = {
   inputGroup: "flex flex-col gap-1.5 min-w-0",
   label: "text-[10px] text-[#2DEBA9] uppercase tracking-widest break-words",
   input: "w-full bg-[#111] border border-[#2DEBA9]/30 px-3 py-3 text-white outline-none focus:border-[#2DEBA9] focus:bg-black transition-colors text-sm",
+  errorMessage: "border border-[#ff6b6b]/30 bg-[#ff6b6b]/10 px-3 py-2 text-[11px] text-[#ff9a9a] leading-relaxed",
 
-  submitButton: "w-full bg-[#2DEBA9] text-black font-black uppercase tracking-widest py-3 md:py-4 mt-2 hover:bg-white transition-colors active:scale-[0.98] leading-tight break-words",
+  submitButton: "w-full bg-[#2DEBA9] text-black font-black uppercase tracking-widest py-3 md:py-4 mt-2 hover:bg-white transition-colors active:scale-[0.98] leading-tight break-words disabled:opacity-60 disabled:hover:bg-[#2DEBA9] disabled:cursor-not-allowed",
 
   toggleLinkContainer: "mt-2 text-center text-[10px] md:text-xs text-white/50 break-words flex flex-wrap justify-center gap-1",
   toggleLinkButton: "text-[#2DEBA9] hover:underline uppercase tracking-wide decoration-[#2DEBA9]/50 underline-offset-4",

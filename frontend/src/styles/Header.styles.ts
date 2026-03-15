@@ -23,8 +23,12 @@ export const S = {
   statusValue: "text-white font-bold truncate",
 
   actionGroup: "flex items-center gap-2 md:gap-3",
-  loginBtn: "text-white hover:text-[#2DEBA9] text-[10px] md:text-xs font-bold tracking-widest px-3 md:px-4 py-2 transition-colors border border-transparent hover:border-[#2DEBA9]/30",
+  loginBtn: "text-white hover:text-[#2DEBA9] text-[10px] md:text-xs font-bold tracking-widest px-3 md:px-4 py-2 transition-colors border border-transparent hover:border-[#2DEBA9]/30 disabled:opacity-50 disabled:hover:text-white disabled:hover:border-transparent disabled:cursor-not-allowed",
   loginFont: { fontFamily: SCP },
-  signupBtn: "bg-[#2DEBA9]/10 border border-[#2DEBA9] text-[#2DEBA9] font-bold tracking-widest text-[10px] md:text-xs px-3 md:px-5 py-2 hover:bg-[#2DEBA9] hover:text-black transition-all",
+  signupBtn: "bg-[#2DEBA9]/10 border border-[#2DEBA9] text-[#2DEBA9] font-bold tracking-widest text-[10px] md:text-xs px-3 md:px-5 py-2 hover:bg-[#2DEBA9] hover:text-black transition-all disabled:opacity-50 disabled:hover:bg-[#2DEBA9]/10 disabled:hover:text-[#2DEBA9] disabled:cursor-not-allowed",
   signupFont: { fontFamily: SCP },
+  userPanel: "hidden md:flex flex-col min-w-0 px-3 py-2 border border-[#2DEBA9]/20 bg-[#2DEBA9]/5",
+  userLabel: "text-[9px] text-white/50 tracking-[0.18em]",
+  userValue: "text-[11px] md:text-xs text-[#2DEBA9] font-bold tracking-[0.12em] truncate max-w-[180px]",
+  logoutBtn: "border border-[#2DEBA9]/30 text-white hover:text-[#2DEBA9] hover:border-[#2DEBA9] px-3 md:px-4 py-2 text-[10px] md:text-xs font-bold tracking-widest transition-colors",
 };
