@@ -14,7 +14,7 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # ─── AWS / GitHub / Supabase config ──────────────────────────────────────────
 AWS_REGION     = os.getenv("AWS_REGION", "us-east-1")
-NOVA_MODEL_ID  = "amazon.nova-lite-v1:0"
+NOVA_MODEL_ID  = "global.amazon.nova-2-lite-v1:0"
 
 GITHUB_TOKEN  = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO   = os.getenv("GITHUB_REPO")

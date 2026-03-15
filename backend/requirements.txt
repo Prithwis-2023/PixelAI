@@ -10,3 +10,8 @@ requests
 supabase
 python-dotenv
 ultralytics
+sqlalchemy
+pydantic-settings
+psycopg2-binary
+bcrypt
+python-jose[cryptography]

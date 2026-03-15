@@ -17,6 +17,8 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
+from app.api.v1 import auth, users
+
 # ─── In-memory job store ───────────────────────────────────────────────────────
 # job_id -> { status, keyword, video_path, result, log_queue }
 jobs: Dict[str, Dict[str, Any]] = {}
@@ -33,11 +35,18 @@ app.mount("/static", StaticFiles(directory=DATASETS_DIR), name="static")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
