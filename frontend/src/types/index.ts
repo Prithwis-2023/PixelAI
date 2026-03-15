@@ -1,5 +1,14 @@
-export type AppState = 'idle' | 'uploading' | 'processing' | 'result';
+export type AppState = 'idle' | 'uploading' | 'processing' | 'result' | 'training';
 export type AuthMode = 'login' | 'signup';
+
+export interface TrainingMetrics {
+  epochs: number[];
+  train_loss: number[];
+  val_loss: number[];
+  train_iou: number[];
+  val_iou: number[];
+  time_per_epoch: number[];
+}
 
 export interface VideoFile {
   name: string;

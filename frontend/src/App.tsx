@@ -31,6 +31,7 @@ export default function App() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [frameCount, setFrameCount] = useState(0);
   const [frames, setFrames] = useState<ExtractedFrame[]>([]);
+  const [trainingMetrics, setTrainingMetrics] = useState<any | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([
     { time: _ts(), level: 'INFO', msg: 'System initialized' },
     { time: _ts(), level: 'INFO', msg: 'Waiting for input...' },
@@ -122,14 +123,35 @@ export default function App() {
 
   async function checkStatusOnDone(jid: string) {
     try {
+      const token = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
       const res = await fetch(`${API_BASE_URL}/status/${jid}`);
       const data = await res.json();
-      if (data.label_status === 'done') {
+      
+      if (data.train_status === 'done') {
+        fetchMetrics(jid, token);
+      } else if (data.label_status === 'done') {
         fetchAnnotatedFrames(jid);
       } else if (data.status === 'done') {
         fetchFrames(jid);
       }
     } catch(e) {}
+  }
+
+  async function fetchMetrics(jid: string, token: string | null) {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const res = await fetch(`${API_BASE_URL}/metrics/${jid}`, { headers });
+      if (!res.ok) return;
+      
+      const data = await res.json();
+      setTrainingMetrics(data);
+      setAppState('result');
+      pushLog('SUCCESS', 'Training metrics loaded successfully.');
+    } catch(e) {
+      pushLog('ERROR', `Failed to fetch metrics: ${e}`);
+    }
   }
 
   async function fetchFrames(jid: string) {
@@ -164,6 +186,7 @@ export default function App() {
     setVideoFile(file);
     setAppState('idle');
     setFrames([]);
+    setTrainingMetrics(null);
     setFrameCount(0);
     setJobId(null);
     pushLog('INFO', `File selected: ${file.name} (${(file.size / 1048576).toFixed(2)} MB)`);
@@ -233,6 +256,7 @@ export default function App() {
     setVideoFile(null);
     setJobId(null);
     setFrames([]);
+    setTrainingMetrics(null);
     setFrameCount(0);
     setAppState('idle');
     setTag('');
@@ -263,6 +287,32 @@ export default function App() {
       openSSE(jobId);
     } catch (e) {
       pushLog('ERROR', `Label failed: ${e}`);
+    }
+  };
+
+  const handleTrain = async () => {
+    if (!jobId) return;
+    pushLog('INFO', 'Starting PyTorch CNN training...');
+    setAppState('training');
+    try {
+      const token = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch(`${API_BASE_URL}/train/${jobId}`, { 
+        method: 'POST',
+        headers
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail ?? 'Training failed');
+      }
+      // Open new SSE for training logs
+      openSSE(jobId);
+    } catch(e) {
+      setAppState('result');
+      pushLog('ERROR', `Training failed: ${e}`);
     }
   };
 
@@ -367,6 +417,9 @@ export default function App() {
               onExtract={handleExtract}
               extractDisabled={appState !== 'result'}
               keyword={tag}
+              onTrain={handleTrain}
+              trainDisabled={appState !== 'result' || frames.length === 0}
+              metrics={trainingMetrics}
             />
           </div>
         </div>

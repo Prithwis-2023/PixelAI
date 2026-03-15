@@ -1,161 +1,78 @@
 import { S } from '../styles/StatsDisplay.styles';
 
-/* ─── 타입 ─── */
-interface StatEntry {
-  label: string;
-  value: number;
-  max: number;
-  color: string;
-}
-
-interface StatsDisplayProps {
-  /** 도넛 차트 통계 (더미 or API 연동) */
-  stats?: StatEntry[];
-  /** 라인 그래프 데이터 포인트 */
-  chartData?: { label: string; value: number }[];
-}
-
-/* ─── 기본 더미 데이터 ─── */
-const DEFAULT_STATS: StatEntry[] = [
-  { label: 'RELEVANCE_SCORE',  value: 91, max: 100, color: '#2DEBA9' },
-  { label: 'ANNOTATION_CONF',  value: 76, max: 100, color: '#3BFFE0' },
-];
-
-const DEFAULT_CHART: { label: string; value: number }[] = [
-  { label: 'FRAME_01', value: 0.91 },
-  { label: 'FRAME_02', value: 0.76 },
-  { label: 'FRAME_03', value: 0.84 },
-  { label: 'FRAME_04', value: 0.62 },
-  { label: 'FRAME_05', value: 0.88 },
-  { label: 'FRAME_06', value: 0.95 },
-];
-
-/* ─── 도넛 차트 ─── */
-function DonutChart({ value, max, color, label }: StatEntry) {
-  const pct = value / max;
-  const r = 38;
-  const circ = 2 * Math.PI * r;
-  const dash = pct * circ;
-  const gap  = circ - dash;
-
-  return (
-    <div style={S.donutContainer}>
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="9" />
-        <circle
-          cx="50" cy="50" r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="9"
-          strokeLinecap="round"
-          strokeDasharray={`${dash} ${gap}`}
-          strokeDashoffset={circ * 0.25}
-          style={{ filter: S.donutSvg.filter(color) }}
-        />
-        <text x="50" y="46" textAnchor="middle" fill={color} style={S.donutValueText}>
-          {value}
-        </text>
-        <text x="50" y="60" textAnchor="middle" style={S.donutMaxText}>
-          / {max}
-        </text>
-      </svg>
-      <span style={S.donutLabelText}>
-        {label}
-      </span>
-    </div>
-  );
-}
-
-/* ─── 미니 라인 차트 ─── */
-function LineChart({ data }: { data: { label: string; value: number }[] }) {
-  const W = 420, H = 120, PAD = 20;
-  const xs = data.map((_, i) => PAD + (i / (data.length - 1)) * (W - PAD * 2));
-  const ys = data.map(d => PAD + (1 - d.value) * (H - PAD * 2));
-
-  const polyline = xs.map((x, i) => `${x},${ys[i]}`).join(' ');
-
-  const fillPath = [
-    `M ${xs[0]},${ys[0]}`,
-    ...xs.slice(1).map((x, i) => `L ${x},${ys[i + 1]}`),
-    `L ${xs[xs.length - 1]},${H - PAD}`,
-    `L ${xs[0]},${H - PAD}`,
-    'Z',
-  ].join(' ');
-
-  return (
-    <div style={S.lineChartContainer}>
-      <p style={S.lineChartTitle}>
-        // RELEVANCE_TREND
-      </p>
-      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={S.lineChartSvgStyle}>
-        <defs>
-          <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2DEBA9" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#2DEBA9" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {[0.25, 0.5, 0.75, 1.0].map(v => {
-          const y = PAD + (1 - v) * (H - PAD * 2);
-          return (
-            <g key={v}>
-              <line x1={PAD} y1={y} x2={W - PAD} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-              <text x={PAD - 4} y={y + 4} textAnchor="end" style={S.lineChartGuidelineText}>
-                {v.toFixed(2)}
-              </text>
-            </g>
-          );
-        })}
-
-        <path d={fillPath} fill="url(#lg)" />
-
-        <polyline
-          points={polyline}
-          fill="none"
-          stroke="#2DEBA9"
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          style={S.lineChartPolylineStyle}
-        />
-
-        {xs.map((x, i) => (
-          <g key={i}>
-            <circle cx={x} cy={ys[i]} r="3.5" fill="#000" stroke="#2DEBA9" strokeWidth="1.5" />
-            <text x={x} y={H - 4} textAnchor="middle" style={S.lineChartDataText}>
-              {data[i].label.replace('FRAME_', 'F')}
-            </text>
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-/* ─── 메인 컴포넌트 ─── */
-export default function StatsDisplay({
-  stats = DEFAULT_STATS,
-  chartData = DEFAULT_CHART,
-}: StatsDisplayProps) {
+export default function StatsDisplay() {
   return (
     <div className={S.mainContainer}>
       <p style={S.mainTitle}>
-        // ANALYSIS_RESULT
+        // AWAITING_PIPELINE_INITIALIZATION
       </p>
 
-      {/* 도넛 차트 행 */}
-      <div style={S.donutChartsRow}>
-        {stats.map(s => (
-          <DonutChart key={s.label} {...s} />
-        ))}
+      <div className={S.pipelineWrapper}>
+        
+        {/* Node 1 */}
+        <div className={S.nodeContainer}>
+          <div className={S.cornerTL} />
+          <div className={S.cornerTR} />
+          <div className={S.cornerBL} />
+          <div className={S.cornerBR} />
+          <div className={S.nodeIconWrapper}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+              <rect x="2" y="2" width="20" height="20" rx="0" />
+              <path d="M12 8v8" />
+              <path d="M8 12h8" />
+            </svg>
+          </div>
+          <h3 style={S.nodeTitle}>1. UPLOAD & EXTRACT</h3>
+          <p style={S.nodeDesc}>AWS Nova AI extracts raw<br/>video frames perfectly.</p>
+        </div>
+
+        {/* Connector */}
+        <div className={`${S.connectorH}`} />
+        <div className={`${S.connectorV}`} />
+
+        {/* Node 2 */}
+        <div className={S.nodeContainer}>
+          <div className={S.cornerTL} />
+          <div className={S.cornerTR} />
+          <div className={S.cornerBL} />
+          <div className={S.cornerBR} />
+          <div className={S.nodeIconWrapper}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+          </div>
+          <h3 style={S.nodeTitle}>2. YOLO AUTO-LABEL</h3>
+          <p style={S.nodeDesc}>Generates bounding box<br/>ground-truth automatically.</p>
+        </div>
+
+        {/* Connector */}
+        <div className={`${S.connectorH}`} />
+        <div className={`${S.connectorV}`} />
+
+        {/* Node 3 */}
+        <div className={S.nodeContainer}>
+          <div className={S.cornerTL} />
+          <div className={S.cornerTR} />
+          <div className={S.cornerBL} />
+          <div className={S.cornerBR} />
+          <div className={S.nodeIconWrapper}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <h3 style={S.nodeTitle}>3. CNN TRAINING</h3>
+          <p style={S.nodeDesc}>PyTorch trains a lightweight<br/>model on the dataset.</p>
+        </div>
+
       </div>
 
-      {/* 구분선 */}
-      <div style={S.divider} />
-
-      {/* 라인 차트 */}
-      <div style={S.lineChartArea}>
-        <LineChart data={chartData} />
+      {/* Decorative pulse dots */}
+      <div className={S.particlesContainer}>
+        {[0, 0.2, 0.4].map((delay, i) => (
+          <div key={i} className="animate-pulse" style={S.particle(delay)} />
+        ))}
       </div>
     </div>
   );

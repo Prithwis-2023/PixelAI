@@ -157,6 +157,41 @@ async def _run_labeling(job_id: str):
         await queue.put(None)
 
 
+async def _run_training(job_id: str):
+    job = jobs[job_id]
+    queue: asyncio.Queue = job["log_queue"]
+    dataset_dir = job.get("dataset_dir")
+
+    try:
+        job["train_status"] = "training"
+        await _push_log(queue, "INFO", f"Starting training on dataset {dataset_dir}...")
+
+        from train_lightweight_cnn import run_training
+        loop = asyncio.get_event_loop()
+
+        train_result = await loop.run_in_executor(
+            None,
+            lambda: run_training(
+                dataset_dir=dataset_dir,
+                epochs=10,
+                log_callback=lambda lvl, msg: asyncio.run_coroutine_threadsafe(
+                    _push_log(queue, lvl, msg), loop
+                ).result(),
+            )
+        )
+
+        job["train_result"] = train_result
+        job["train_status"] = "done"
+        await _push_log(queue, "SUCCESS", "Training complete. Metrics generated.")
+
+    except Exception as e:
+        job["train_status"] = "error"
+        job["train_error"] = str(e)
+        await _push_log(queue, "ERROR", f"Training failed: {e}")
+    finally:
+        await queue.put(None)
+
+
 # ─── Routes ───────────────────────────────────────────────────────────────────
 
 @app.post("/upload")
@@ -191,6 +226,8 @@ async def upload_video(
         "label_status": "pending",
         "result": None,
         "dataset_dir": None,
+        "train_status": "pending",
+        "train_result": None,
         "log_queue": asyncio.Queue(),
         "user_hash_id": current_user.user_hash_id,
     }
@@ -248,6 +285,7 @@ async def get_status(job_id: str):
         "job_id": job_id,
         "status": job["status"],
         "label_status": job.get("label_status", "pending"),
+        "train_status": job.get("train_status", "pending"),
         "keyword": job["keyword"],
         "video_name": job["video_name"],
         "video_size_mb": job["video_size_mb"],
@@ -288,6 +326,33 @@ async def label_frames(job_id: str, background_tasks: BackgroundTasks, current_u
 
     return {"job_id": job_id, "label_status": "labeling"}
 
+
+@app.post("/train/{job_id}")
+async def train_model(job_id: str, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
+    """Trigger PyTorch CNN training on the labeled dataset."""
+    job = _get_job(job_id)
+    if job.get("label_status") != "done":
+        raise HTTPException(status_code=425, detail="Labeling not yet complete")
+    if job.get("train_status") == "training":
+        raise HTTPException(status_code=409, detail="Training already in progress")
+
+    job["log_queue"] = asyncio.Queue()
+    background_tasks.add_task(_run_training, job_id)
+
+    return {"job_id": job_id, "train_status": "training"}
+
+@app.get("/metrics/{job_id}")
+async def get_metrics(job_id: str, current_user: User = Depends(get_current_user)):
+    """Return the generated metrics.json file."""
+    job = _get_job(job_id)
+    if job.get("train_status") != "done" or not job.get("train_result"):
+        raise HTTPException(status_code=404, detail="Training metrics not available yet")
+        
+    metrics_file = job["train_result"]["metrics_file"]
+    if os.path.exists(metrics_file):
+        with open(metrics_file, "r") as f:
+            return json.load(f)
+    raise HTTPException(status_code=404, detail="metrics.json file not found")
 
 @app.get("/download/{job_id}")
 async def download_dataset(job_id: str):
