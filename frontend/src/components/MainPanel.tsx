@@ -1,30 +1,38 @@
 import OperationSummary from './OperationSummary';
 import DatasetBox from './DatasetBox';
 import StatsDisplay from './StatsDisplay';
-import type { ExtractedFrame } from '../types';
+import type { ExtractedFrame, AppState } from '../types';
 import { S } from '../styles/MainPanel.styles';
+import FrameGrid from './FrameGrid';
 
 interface MainPanelProps {
   frameCount?: number;
-  credits?: number;
   frames?: ExtractedFrame[];
   onExtract?: () => void;
   extractDisabled?: boolean;
+  appState?: AppState;
+  keyword?: string;
 }
 
-/** 우측 메인 패널 — 요약 + 데이터셋 박스 + 통계 차트 */
 export default function MainPanel({
-  frameCount = 7,
-  credits = 70,
+  frameCount = 0,
+  frames = [],
   onExtract,
   extractDisabled = false,
+  keyword = '',
 }: MainPanelProps) {
+  const credits = frameCount * 10;
+
   return (
     <main className={S.container}>
       <OperationSummary frameCount={frameCount} credits={credits} />
-      <DatasetBox onExtract={onExtract} disabled={extractDisabled} />
+      <DatasetBox onExtract={onExtract} disabled={extractDisabled} keyword={keyword} />
       <div className={S.statsContainer}>
-        <StatsDisplay />
+        {frames.length > 0 ? (
+          <FrameGrid frames={frames} />
+        ) : (
+          <StatsDisplay />
+        )}
       </div>
     </main>
   );

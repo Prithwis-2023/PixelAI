@@ -1,40 +1,47 @@
+import { useEffect, useRef } from 'react';
 import { S } from '../styles/SystemLog.styles';
 
-/** 더미 로그 엔트리 — 나중에 API 연동 시 실제 job 이벤트로 교체 */
 const DUMMY_LOGS = [
-  { time: '15:01:03', level: 'INFO',  msg: 'System initialized' },
-  { time: '15:01:05', level: 'INFO',  msg: 'Waiting for input...' },
+  { time: '00:00:00', level: 'INFO', msg: 'System initialized' },
+  { time: '00:00:01', level: 'INFO', msg: 'Waiting for input...' },
 ];
 
-interface SystemLogProps {
-  logs?: { time: string; level: string; msg: string }[];
+interface LogEntry {
+  time: string;
+  level: string;
+  msg: string;
 }
 
-/** 좌측 하단 시스템 로그 패널 */
+interface SystemLogProps {
+  logs?: LogEntry[];
+}
+
 export default function SystemLog({ logs = DUMMY_LOGS }: SystemLogProps) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new logs arrive
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
   return (
     <div className={S.container} style={S.containerStyle}>
-      {/* 헤더 바 */}
+      {/* Header bar */}
       <div style={S.header}>
         <span style={S.indicator} />
-        <span style={S.headerTitle}>
-          // SYSTEM_LOG
-        </span>
+        <span style={S.headerTitle}>// SYSTEM_LOG</span>
       </div>
 
-      {/* 로그 리스트 */}
+      {/* Log list */}
       <div style={S.logList}>
         {logs.map((entry, i) => (
           <div key={i} style={S.entryRecord}>
-            <span style={S.entryTime}>
-              {entry.time}
-            </span>
-            <span style={S.entryLevel(entry.level)}>
-              [{entry.level}]
-            </span>
+            <span style={S.entryTime}>{entry.time}</span>
+            <span style={S.entryLevel(entry.level)}>[{entry.level}]</span>
             <span style={S.entryMsg}>{entry.msg}</span>
           </div>
         ))}
+        <div ref={bottomRef} />
       </div>
     </div>
   );

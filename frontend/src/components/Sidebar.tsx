@@ -2,24 +2,50 @@ import SearchInput from './SearchInput';
 import RecBox from './RecBox';
 import SystemLog from './SystemLog';
 import { S } from '../styles/Sidebar.styles';
+import type { AppState } from '../types';
+
+interface LogEntry {
+  time: string;
+  level: string;
+  msg: string;
+}
 
 interface SidebarProps {
   tag: string;
   onTagChange: (v: string) => void;
   onExecute?: () => void;
   onReset?: () => void;
+  videoFile?: File | null;
+  onFileSelect?: (file: File) => void;
+  logs?: LogEntry[];
+  appState?: AppState;
 }
 
-/** 좌측 패널 — 검색창 + [REC] 박스 + EXECUTE_UPLOAD 버튼 + 시스템 로그 */
-export default function Sidebar({ tag, onTagChange, onExecute, onReset }: SidebarProps) {
+export default function Sidebar({
+  tag,
+  onTagChange,
+  onExecute,
+  onReset,
+  videoFile,
+  onFileSelect,
+  logs,
+  appState,
+}: SidebarProps) {
+  const isProcessing = appState === 'uploading' || appState === 'processing';
+
   return (
     <aside className={S.container}>
 
       <SearchInput value={tag} onChange={onTagChange} />
 
-      <RecBox onReset={onReset} />
+      <RecBox
+        fileName={videoFile?.name}
+        fileSizeMB={videoFile ? videoFile.size / 1048576 : undefined}
+        onReset={onReset}
+        onFileSelect={onFileSelect}
+      />
 
-      {/* EXECUTE_UPLOAD — 글리치 장식 + 노란 채움 버튼 */}
+      {/* EXECUTE_UPLOAD */}
       <div className={S.executeBtnWrapper}>
         <div className="absolute" style={S.glitchTopLeft} />
         <div className="absolute" style={S.glitchBottomRight} />
@@ -28,15 +54,20 @@ export default function Sidebar({ tag, onTagChange, onExecute, onReset }: Sideba
         <button
           className={S.executeBtn}
           onClick={onExecute}
-          style={S.executeBtnStyle}
+          disabled={isProcessing}
+          style={{
+            ...S.executeBtnStyle,
+            opacity: isProcessing ? 0.5 : 1,
+            cursor: isProcessing ? 'not-allowed' : 'pointer',
+          }}
         >
-          EXECUTE_UPLOAD
+          {isProcessing ? 'PROCESSING...' : 'EXECUTE_UPLOAD'}
         </button>
       </div>
 
-      {/* 시스템 로그 — 남은 공간 채움 */}
+      {/* System log */}
       <div className={S.logContainer}>
-        <SystemLog />
+        <SystemLog logs={logs} />
       </div>
 
     </aside>

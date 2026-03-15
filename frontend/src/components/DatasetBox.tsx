@@ -5,10 +5,11 @@ import { S } from '../styles/DatasetBox.styles';
 interface DatasetBoxProps {
   onExtract?: () => void;
   disabled?: boolean;
+  keyword?: string;
 }
 
 /** AI 학습 번들 정보 + EXTRACT_DATASET.ZIP 버튼 */
-export default function DatasetBox({ onExtract, disabled = false }: DatasetBoxProps) {
+export default function DatasetBox({ onExtract, disabled = false, keyword = '' }: DatasetBoxProps) {
   return (
     <div className={S.container} style={S.containerStyle}>
       {/* 8-bit decorative corners */}
@@ -19,7 +20,7 @@ export default function DatasetBox({ onExtract, disabled = false }: DatasetBoxPr
 
       <div>
         <p style={S.titleStyle}>
-          AI _TRAINING_BUNDLE_GENERIC
+          AI _TRAINING_BUNDLE_{keyword ? keyword.toUpperCase() : 'GENERIC'}
         </p>
         <p style={S.subtitleStyle}>
           FORMAT: YOLOV8// READY FOR OPTIMIZATION
