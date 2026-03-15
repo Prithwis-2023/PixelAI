@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+python-multipart
+sse-starlette
+ffmpeg-python
+opencv-python
+scikit-image
+boto3
+requests
+supabase
+python-dotenv
+ultralytics
