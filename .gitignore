@@ -29,3 +29,7 @@ temp_frames/
 dataset/
 *.mp4
 __pycache__/
+
+*.png
+*.txt
+*.yaml

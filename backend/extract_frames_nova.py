@@ -238,7 +238,6 @@ def process_video(
                 "repo_name": GITHUB_REPO,
                 "base_url":  base_cdn_url,
                 "number_of_frames": processed_count,
-                "keyword": keyword,
             }).execute()
             _log(log_callback, "INFO", f"Saved to Supabase: {base_cdn_url}")
         except Exception as e:
