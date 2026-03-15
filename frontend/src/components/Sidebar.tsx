@@ -1,6 +1,7 @@
 import SearchInput from './SearchInput';
 import RecBox from './RecBox';
 import SystemLog from './SystemLog';
+import CreditsMarquee from './CreditsMarquee';
 import { S } from '../styles/Sidebar.styles';
 import type { AppState } from '../types';
 
@@ -69,6 +70,9 @@ export default function Sidebar({
       <div className={S.logContainer}>
         <SystemLog logs={logs} />
       </div>
+
+      {/* Contributors Marquee */}
+      <CreditsMarquee />
 
     </aside>
   );
