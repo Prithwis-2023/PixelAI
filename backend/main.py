@@ -7,7 +7,7 @@ import json
 from typing import Dict, Any
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, BackgroundTasks, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -18,6 +18,12 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 from app.api.v1 import auth, users
+from app.db.database import engine, Base
+from app.models.user import User
+from app.api.dependencies import get_current_user
+
+# Create all tables
+Base.metadata.create_all(bind=engine)
 
 # ─── In-memory job store ───────────────────────────────────────────────────────
 # job_id -> { status, keyword, video_path, result, log_queue }
@@ -69,6 +75,7 @@ async def _run_pipeline(job_id: str):
     queue: asyncio.Queue = job["log_queue"]
     keyword: str = job["keyword"]
     video_path: str = job["video_path"]
+    user_hash_id: str = job.get("user_hash_id", "default")
 
     try:
         job["status"] = "processing"
@@ -88,6 +95,7 @@ async def _run_pipeline(job_id: str):
                 video_path=video_path,
                 keyword=keyword,
                 output_folder=os.path.join(os.path.dirname(__file__), "temp_frames", job_id),
+                user_hash_id=user_hash_id,
                 log_callback=lambda lvl, msg: asyncio.run_coroutine_threadsafe(
                     _push_log(queue, lvl, msg), loop
                 ).result(),
@@ -155,6 +163,7 @@ async def _run_labeling(job_id: str):
 async def upload_video(
     video: UploadFile = File(...),
     keyword: str = Form(...),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Receive a video file + keyword. Save to disk. Return a job_id.
@@ -183,6 +192,7 @@ async def upload_video(
         "result": None,
         "dataset_dir": None,
         "log_queue": asyncio.Queue(),
+        "user_hash_id": current_user.user_hash_id,
     }
 
     return {
@@ -195,7 +205,7 @@ async def upload_video(
 
 
 @app.post("/process/{job_id}")
-async def start_processing(job_id: str, background_tasks: BackgroundTasks):
+async def start_processing(job_id: str, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     """
     Kick off frame extraction + Nova + GitHub + Supabase pipeline in background.
     """
@@ -264,7 +274,7 @@ async def get_frames(job_id: str):
 
 
 @app.post("/label/{job_id}")
-async def label_frames(job_id: str, background_tasks: BackgroundTasks):
+async def label_frames(job_id: str, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     """Trigger YOLO auto-labeling on the extracted frames."""
     job = _get_job(job_id)
     if job["status"] != "done":

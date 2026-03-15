@@ -183,12 +183,21 @@ export default function App() {
     pushLog('INFO', `Uploading ${videoFile.name} with keyword "${tag}"...`);
 
     try {
-      // 1. Upload
       const form = new FormData();
       form.append('video', videoFile);
       form.append('keyword', tag.trim());
 
-      const uploadRes = await fetch(`${API_BASE_URL}/upload`, { method: 'POST', body: form });
+      const token = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const uploadRes = await fetch(`${API_BASE_URL}/upload`, { 
+        method: 'POST', 
+        body: form,
+        headers 
+      });
       if (!uploadRes.ok) {
         const err = await uploadRes.json();
         throw new Error(err.detail ?? 'Upload failed');
@@ -200,7 +209,10 @@ export default function App() {
 
       // 2. Start processing
       setAppState('processing');
-      const procRes = await fetch(`${API_BASE_URL}/process/${jid}`, { method: 'POST' });
+      const procRes = await fetch(`${API_BASE_URL}/process/${jid}`, { 
+        method: 'POST',
+        headers
+      });
       if (!procRes.ok) {
         const err = await procRes.json();
         throw new Error(err.detail ?? 'Processing start failed');
@@ -234,7 +246,15 @@ export default function App() {
     if (!jobId) return;
     pushLog('INFO', 'Starting YOLO labeling...');
     try {
-      const res = await fetch(`${API_BASE_URL}/label/${jobId}`, { method: 'POST' });
+      const token = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch(`${API_BASE_URL}/label/${jobId}`, { 
+        method: 'POST',
+        headers
+      });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.detail ?? 'Labeling failed');

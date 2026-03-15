@@ -55,11 +55,11 @@ def is_distinct(prev_frame, curr_frame, threshold=SSIM_THRESHOLD):
     return score < threshold
 
 
-def upload_to_github(file_path: str, repo_path: str) -> Optional[str]:
-    if not GITHUB_TOKEN or not GITHUB_REPO:
+def upload_to_github(file_path: str, full_repo_name: str, repo_path: str) -> Optional[str]:
+    if not GITHUB_TOKEN or not full_repo_name:
         return None
 
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{repo_path}"
+    url = f"https://api.github.com/repos/{full_repo_name}/contents/{repo_path}"
     with open(file_path, "rb") as f:
         content = base64.b64encode(f.read()).decode("utf-8")
 
@@ -79,10 +79,43 @@ def upload_to_github(file_path: str, repo_path: str) -> Optional[str]:
 
     put_res = requests.put(url, headers=headers, json=data)
     if put_res.status_code in [200, 201]:
-        return f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{repo_path}"
+        return f"https://raw.githubusercontent.com/{full_repo_name}/{GITHUB_BRANCH}/{repo_path}"
 
     print(f"GitHub upload failed: {put_res.text}")
     return None
+
+def ensure_github_repo_exists(owner: str, repo_name: str, log_callback=None) -> bool:
+    if not GITHUB_TOKEN:
+        return False
+        
+    url = f"https://api.github.com/repos/{owner}/{repo_name}"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    
+    res = requests.get(url, headers=headers)
+    if res.status_code == 200:
+        return True
+        
+    if res.status_code == 404:
+        _log(log_callback, "INFO", f"Repo {owner}/{repo_name} not found. Creating...")
+        data = {"name": repo_name, "private": False, "auto_init": True}
+        
+        # Try orgs first
+        create_res = requests.post(f"https://api.github.com/orgs/{owner}/repos", headers=headers, json=data)
+        if create_res.status_code in [201, 200]:
+            return True
+        
+        # Fallback to user
+        create_res = requests.post("https://api.github.com/user/repos", headers=headers, json=data)
+        if create_res.status_code in [201, 200]:
+            return True
+            
+        _log(log_callback, "ERROR", f"Failed to create repo: {create_res.text}")
+        return False
+        
+    return False
 
 
 def analyze_frame_with_nova(image_path: str, keyword: str) -> Optional[dict]:
@@ -147,6 +180,7 @@ def process_video(
     video_path: str,
     keyword: str = "object",
     output_folder: str = "temp_frames",
+    user_hash_id: str = "default",
     log_callback: Optional[Callable[[str, str], None]] = None,
 ) -> dict:
     """
@@ -187,6 +221,17 @@ def process_video(
     processed_count = 0
     frame_urls = []
 
+    # Ensure GitHub repo exists
+    owner = GITHUB_REPO.split("/")[0] if GITHUB_REPO else "SUNSET-Sejong-University"
+    # To use the same logic as the plan: use the user_hash_id as the repo name.
+    dynamic_repo_name = f"pixel-{user_hash_id}"
+    full_repo_name = f"{owner}/{dynamic_repo_name}"
+    
+    _log(log_callback, "INFO", f"Ensuring CDN repository '{full_repo_name}' exists...")
+    repo_ok = ensure_github_repo_exists(owner, dynamic_repo_name, log_callback)
+    if not repo_ok:
+        _log(log_callback, "WARN", f"Could not verify or create repository '{full_repo_name}'. CDN uploads may fail.")
+
     for frame_name in all_frames:
         frame_path = os.path.join(output_folder, frame_name)
         curr_frame = cv2.imread(frame_path)
@@ -215,7 +260,7 @@ def process_video(
 
         # Upload to GitHub CDN
         seq_name = f"frame_{processed_count + 1:04d}.png"
-        cdn_url  = upload_to_github(frame_path, f"frames/{video_id}/{seq_name}")
+        cdn_url  = upload_to_github(frame_path, full_repo_name, f"frames/{video_id}/{seq_name}")
 
         if cdn_url:
             frame_urls.append(cdn_url)
@@ -226,16 +271,16 @@ def process_video(
 
     # Store base CDN URL in Supabase
     base_cdn_url = ""
-    if GITHUB_REPO:
+    if repo_ok:
         base_cdn_url = (
-            f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}"
+            f"https://raw.githubusercontent.com/{full_repo_name}/{GITHUB_BRANCH}"
             f"/frames/{video_id}/"
         )
 
     if supabase and base_cdn_url:
         try:
             supabase.table(SUPABASE_TABLE).insert({
-                "repo_name": GITHUB_REPO,
+                "repo_name": full_repo_name,
                 "base_url":  base_cdn_url,
                 "number_of_frames": processed_count,
             }).execute()
