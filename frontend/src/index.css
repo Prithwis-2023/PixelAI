@@ -1,5 +1,35 @@
 @import "tailwindcss";
 
+/* Hide scrollbar globally */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+
+* {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+
+@layer base {
+  html, body {
+    @apply selection:bg-[#2DEBA9]/30;
+    margin: 0;
+    padding: 0;
+    overflow: hidden !important;
+    height: 100%;
+    width: 100%;
+  }
+}
+
 /* ─── Micro-interactions ─────────────────────────── */
 
 /* 노란 채움 버튼 (EXECUTE, EXTRACT) */

@@ -88,7 +88,7 @@ export default function PixelBackground() {
     ];
 
     const TETRIS_COLORS = [
-      'rgba(255, 0, 0, 0.6)',     // Vibrant Red
+    'rgba(255, 0, 0, 0.6)',     // Vibrant Red
       'rgba(0, 255, 0, 0.6)',     // Vibrant Green
       'rgba(0, 102, 255, 0.6)',   // Vibrant Blue
       'rgba(255, 255, 0, 0.6)',   // Vibrant Yellow
@@ -109,24 +109,21 @@ export default function PixelBackground() {
     let fallingBlocks: FallingBlock[] = [];
     const tBlockSize = 24;
 
-    let marginX = 0;
-    const MAX_CONTENT_WIDTH = 960;
-
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
       
-      marginX = Math.max(0, (width - MAX_CONTENT_WIDTH) / 2);
       kidX = blockW; // Reset kid position
 
       fallingBlocks = [];
       const laneWidth = tBlockSize * 5;
-      const numLanesLeft = Math.floor(marginX / laneWidth);
-      const rightStart = marginX + MAX_CONTENT_WIDTH;
-      const numLanesRight = Math.floor((width - rightStart) / laneWidth);
-
+      
+      // Spawn exactly one or two lanes on the absolute edges of the screen
+      // so it elegantly frames the UI regardless of its dynamic width.
+      const numLanesEdge = Math.max(1, Math.floor(width * 0.05 / laneWidth)); 
+      
       const verticalSpacing = 250; // 원천적으로 겹침을 방지하기 위한 최소 간격
       const blocksPerLane = Math.ceil(height / verticalSpacing) + 1;
 
@@ -160,8 +157,8 @@ export default function PixelBackground() {
         }
       };
 
-      createLaneBlocks(numLanesLeft, (marginX - numLanesLeft * laneWidth) / 2);
-      createLaneBlocks(numLanesRight, rightStart + (marginX - numLanesRight * laneWidth) / 2);
+      createLaneBlocks(numLanesEdge, 0); // Spawn on far left
+      createLaneBlocks(numLanesEdge, width - (numLanesEdge * laneWidth)); // Spawn on far right
     };
 
     window.addEventListener('resize', resize);
