@@ -1,6 +1,6 @@
-# 🎮 Pixel AI — Gaming Footage → ML Dataset Pipeline
+# 🎞️ Pixel: The Video-to-Dataset Engine
 
-> Turn any video — especially game recordings — into a fully labeled, training-ready object detection dataset. Powered by AWS Nova, YOLOv8, and a custom PyTorch CNN.
+> Bridge the model knowledge gap by turning any video into a labeled, training-ready object detection dataset. Powered by AWS Nova, YOLOv8, and a custom PyTorch CNN.
 
 ---
 
@@ -176,6 +176,8 @@ pixel-new/
 ### 1. Upload
 `POST /upload` — Accepts a video file and keyword. Saves the video to disk, returns a `job_id`.
 
+![Initialization](images/initialization.jpg)
+
 ### 2. Frame Extraction & AI Filtering
 `POST /process/{job_id}` — Triggers the background pipeline in `extract_frames_nova.py`:
 - Extract frames at 2 FPS using **FFmpeg**
@@ -183,6 +185,9 @@ pixel-new/
 - Send each unique frame to **AWS Nova (amazon.nova-2-lite-v1)** with a prompt asking if the frame is relevant for training a `{keyword}` detection model
 - Upload relevant frames to a per-user **GitHub repository** as CDN-served raw images
 - Record the base CDN URL and frame count in **Supabase**
+
+![Nova Extraction](images/nova_extraction.jpg)
+![Frame Gallery](images/frame_gallery.jpg)
 
 Progress is streamed to the frontend in real time via `GET /stream/{job_id}` (SSE).
 
@@ -195,6 +200,8 @@ Progress is streamed to the frontend in real time via `GET /stream/{job_id}` (SS
 - Organizes the dataset into `train/` (80%) and `val/` (20%) splits
 - Writes a `data.yaml` compatible with YOLO trainers
 
+![YOLO Labeling](images/yolo_labeling.jpg)
+
 ### 4. CNN Training
 `POST /train/{job_id}` — Trains a custom lightweight **PyTorch BBoxRegressor** CNN:
 - 3-layer convolutional feature extractor (16→32→64 channels)
@@ -202,6 +209,8 @@ Progress is streamed to the frontend in real time via `GET /stream/{job_id}` (SS
 - **MSE Loss**, **Adam optimizer**, data augmentation (ColorJitter)
 - Trains for 10 epochs, computes **IoU** per epoch
 - Saves `model_weights.pth` and `metrics.json`
+
+![Training Metrics](images/training_metrics.jpg)
 
 ### 5. Results & Download
 - `GET /metrics/{job_id}` — Returns the training metrics JSON (loss & IoU per epoch)
