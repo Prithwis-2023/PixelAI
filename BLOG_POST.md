@@ -50,4 +50,4 @@ We want PIXEL to be the default starting point for video-based ML. To encourage 
 
 The "knowledge gap" in ML is a data problem, and the solution is already hidden in our videos. With the power of **Amazon Bedrock** and **Nova AI**, PIXEL unlocks that data for everyone.
 
-**Start building today at [GitHub URL]**
+**Start building today at [GitHub](https://github.com/Prithwis-2023/PixelAI/)**
