@@ -2,6 +2,8 @@
 
 > Bridge the model knowledge gap by turning any video into a labeled, training-ready object detection dataset. Powered by AWS Nova, YOLOv8, and a custom PyTorch CNN.
 
+📢 **[Click here for our Amazon Nova AI Hackathon Submission Details](HACKATHON.md)**
+
 ---
 
 ## 📌 Overview
