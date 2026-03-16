@@ -1,6 +1,6 @@
-# 🤖 Pixel AI — Automated ML Dataset Pipeline
+# 🎮 Pixel AI — Gaming Footage → ML Dataset Pipeline
 
-> Upload a video. Get a labeled, trained dataset — powered by AWS Nova, YOLOv8, and a custom PyTorch CNN.
+> Turn any video — especially game recordings — into a fully labeled, training-ready object detection dataset. Powered by AWS Nova, YOLOv8, and a custom PyTorch CNN.
 
 ---
 
@@ -18,6 +18,59 @@
 8. **Serves metrics, annotated previews, and a downloadable dataset ZIP** back to the frontend.
 
 The frontend provides a real-time dashboard with live log streaming (SSE), an interactive frame gallery with bounding-box visualizations, and a training metrics chart.
+
+---
+
+## 🎯 The Problem Pixel Solves: "I Have a Video, But No Dataset"
+
+Training an object detection model requires **large quantities of labeled images** — but for most real-world concepts, those labeled datasets simply don't exist.
+
+Imagine you want to train a model to detect **red jackets**. There's no standard dataset for that. But maybe you found a film, a music video, or a documentary where characters are wearing exactly what you need. Previously, that video was useless to you as a training resource — the manual effort to extract frames, curate, annotate, and organize them into a training-ready format was simply too high.
+
+**Pixel AI turns that video directly into a production-ready ML dataset.**
+
+```
+  🎬 Any Video (film, music video, gameplay, documentary, screen recording)
+          │  keyword: "red jacket"
+          ▼
+  🤖 Pixel AI Pipeline
+          │  Nova AI filters relevant frames → YOLOv8 labels them
+          ▼
+  📦 Production-ready YOLO Dataset (.zip)
+     ├── train/images/  ── train/labels/
+     ├── val/images/    ── val/labels/
+     └── data.yaml      ── metrics.json
+```
+
+This directly alleviates the **knowledge gap** in your model: instead of either abandoning niche concepts because datasets don't exist, or spending weeks on manual annotation, you give Pixel a video and a keyword and walk away with a labeled dataset.
+
+**Example use cases:**
+| What you have | What you need | Keyword |
+|---|---|---|
+| Racing game footage | Vehicle detection dataset | `car` |
+| Fashion film / music video | Specific clothing detector | `red jacket` |
+| Wildlife documentary | Animal detection dataset | `elephant` |
+| FPS game recording | Character detection dataset | `person` |
+| Security camera demo | Bag detection dataset | `backpack` |
+| Any video you can find | Anything visible in that video | Your keyword |
+
+---
+
+## ✨ Why Pixel is Unique
+
+Most dataset tools focus on one step: annotation editors, scraping utilities, or training dashboards — but none connect the entire pipeline. Pixel AI is unique because:
+
+| Feature | Pixel AI | Traditional Approach |
+|---------|----------|----------------------|
+| **Source** | Any video (gaming, real-world, recorded) | Manual image collection |
+| **Smart Frame Selection** | AWS Nova AI filters for keyword relevance + SSIM deduplication | Manual curation |
+| **Auto-Labeling** | YOLOv8 COCO zero-shot labeling | Manual annotation tools (LabelImg, Roboflow) |
+| **CDN Storage** | Auto-creates per-user GitHub CDN repos | Self-managed storage |
+| **Model Training** | Built-in lightweight CNN trained in-browser pipeline | Separate training infrastructure |
+| **End-to-end** | Upload → Dataset ZIP + trained model in one session | Multiple disconnected tools |
+| **Real-time Feedback** | SSE live log stream, annotated frame previews, epoch charts | None |
+
+The key innovation is the **AI-powered curation layer**: instead of extracting every frame blindly, Pixel uses **AWS Nova** to intelligently decide which frames are actually useful for training a detector for your specific keyword — dramatically improving dataset quality and reducing noise.
 
 ---
 
